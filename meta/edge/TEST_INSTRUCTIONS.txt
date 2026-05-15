@@ -1,0 +1,33 @@
+TESTING INSTRUCTIONS — Dripwriter Origin
+
+PREREQUISITES
+- Microsoft Edge with the extension installed
+- A Google account (free)
+- A Google Docs document open in Edge
+
+SETUP
+1. Open any Google Docs document: https://docs.google.com/document/create
+2. Click the Dripwriter Origin icon in the Edge toolbar to open the popup.
+
+CORE FLOW
+3. Paste any text into the text area in the popup (a sentence or two is enough).
+4. Click inside the Google Docs document where you want typing to begin.
+5. Return to the popup and click Start.
+6. Observe: the extension types the pasted text into the document character by character at a natural, variable pace.
+7. Click Stop at any time to halt typing immediately.
+
+SETTINGS
+8. Adjust Typing Speed, Typo Rate, or False Start Rate using the sliders.
+9. Click Start again — the new settings take effect.
+10. Close and reopen the popup — confirm settings persisted.
+
+DIAGNOSTICS
+11. Click the Diagnostics button in the popup with a Google Docs tab active.
+12. Confirm the diagnostic check completes and reports the document input area as reachable.
+
+BOUNDARY CHECK
+13. Navigate to a non-Google Docs page (e.g., edge://newtab).
+14. Open the popup — confirm the extension indicates it is inactive or unavailable on this page.
+
+PERMISSIONS
+The extension requests: storage (saves settings locally), tabs (identifies active tab), and access to docs.google.com (injects typing script). No network requests are made to external servers.
