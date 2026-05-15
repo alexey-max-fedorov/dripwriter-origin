@@ -1,0 +1,32 @@
+version: 2
+updates:
+
+  # extension
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "[extension]"
+    assignees:
+      - "alexey-max-fedorov"
+
+  # website
+  - package-ecosystem: "npm"
+    directory: "/website"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "[website]"
+    assignees:
+      - "alexey-max-fedorov"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "[Actions]"
+    assignees:
+      - "alexey-max-fedorov"
