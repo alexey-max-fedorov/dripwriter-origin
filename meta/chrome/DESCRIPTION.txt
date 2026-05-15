@@ -1,0 +1,100 @@
+Dripwriter Origin types your text into Google Docs with natural, human-like cadence — variable speed, realistic typos, false starts, and periodic breaks — so your document looks and feels like it was written by hand.
+
+
+HOW IT WORKS
+
+Paste your text into the Dripwriter Origin popup. Click where you want typing to begin in your Google Docs document. Press Start. The extension types character by character at a pace you control.
+
+Every detail of the typing rhythm is configurable:
+
+Typing Speed: Set your base speed from 20 to 150 words per minute, with adjustable variance so the pace naturally fluctuates — slower on complex words, faster on familiar ones.
+
+Realistic Typos: At a rate you choose (0-25%), the extension makes keyboard-neighbor mistakes and immediately corrects them, exactly like a real typist catching their own errors.
+
+False Starts: At a configurable rate (0-20%), the extension will begin typing a word, stop, delete it, and continue — the kind of micro-correction that happens naturally when writing.
+
+Natural Breaks: Every 15 to 180 seconds (configurable), the extension pauses for a short rest — 3 to 25 seconds — mimicking the natural pauses a writer takes to think, re-read, or rest their hands.
+
+Diagnostics Mode: Before a long typing session, run the built-in diagnostics to verify the extension can reach your document's active input area.
+
+
+WHO IT'S FOR
+
+Accessibility users: People with motor impairments, repetitive strain injury, essential tremor, or other conditions that make sustained typing painful or difficult can prepare their text using voice dictation, AI writing assistants, or other adaptive tools, then let Dripwriter Origin handle the actual keystroke input into Google Docs.
+
+Students and researchers: Writers who draft content in one tool and need it entered into Google Docs with natural timing.
+
+Content creators: Writers who work across multiple platforms and tools, consolidating their writing into Google Docs.
+
+Professionals with RSI: Anyone managing repetitive strain who needs to minimize keystrokes during a writing session.
+
+
+SETTINGS
+
+Typing Speed: 20 to 150 words per minute (default: 60 wpm)
+Speed Variance: 0 to 80% variation from base speed (default: 30%)
+Typo Rate: 0 to 25% chance of a corrected mistype per character (default: 3%)
+False Start Rate: 0 to 20% chance of a corrected false start per word (default: 3%)
+Break Frequency: Every 15 to 180 seconds (default: 55 seconds)
+Frequency Variance: 0 to 100% variation in break timing (default: 30%)
+Shortest Break: 3 to 20 seconds (default: 3 seconds)
+Longest Break: 4 to 25 seconds (default: 15 seconds)
+
+All settings persist automatically. Your configuration is saved locally and restored the next time you open the popup.
+
+
+COMPATIBLE WITH
+
+Google Docs documents (docs.google.com/document/*)
+
+
+PRIVACY
+
+Dripwriter Origin does not collect any data. Your text never leaves your device. Settings are stored locally using Chrome's storage API. No analytics. No tracking. No network requests to any external server.
+
+
+FREQUENTLY ASKED QUESTIONS
+
+What is Dripwriter Origin?
+Dripwriter Origin is a Chrome extension that types pasted text into Google Docs with realistic human cadence — variable speed, natural typos, false starts, and breaks. It is designed for users who need keystroke simulation in Google Docs, particularly as an accessibility tool for people who find sustained typing difficult or painful.
+
+Does Dripwriter Origin work on any website?
+No. Dripwriter Origin is specifically designed for Google Docs documents (docs.google.com/document/*). It does not activate on any other website.
+
+Does the extension read my Google Docs content?
+No. The extension only receives the text you explicitly paste into its popup. It never reads the content of your Google Docs document.
+
+Can I stop typing in the middle of a session?
+Yes. Open the Dripwriter Origin popup at any time and press Stop. Typing halts immediately.
+
+Does Dripwriter Origin collect any personal data?
+No. All settings and preferences are stored locally on your device using Chrome's local storage API. No data is transmitted to any external server.
+
+What is the typing speed range?
+Dripwriter Origin supports 20 to 150 words per minute, with configurable variance so speed fluctuates naturally rather than staying mechanically constant.
+
+What are false starts?
+A false start is when a typist begins a word, deletes it, and continues. At your configured rate, Dripwriter Origin simulates this behavior — typing a partial or complete word, deleting it, and proceeding — making the typing pattern more realistic.
+
+Does Dripwriter Origin require a Google account or any login?
+No. The extension requires no account, login, or registration. Install and use immediately.
+
+Is Dripwriter Origin free?
+Yes, for personal and noncommercial use. Commercial use requires a separate license. See the Dripwriter Origin license for details.
+
+Does it work with Firefox?
+Yes. A Firefox version is available separately.
+
+
+PERMISSIONS EXPLAINED
+
+Storage: Saves your settings (speed, variance, typo rate, break timing) and theme preference locally on your device. Nothing is synced or transmitted externally.
+
+Tabs: Required to identify the active browser tab, confirm it is a Google Docs document, and communicate with the typing script running in that tab. The extension only queries the currently focused tab.
+
+Access to docs.google.com: Required to inject the typing script into Google Docs pages. Without this permission, the extension cannot send keystrokes to your document. The extension does not access any other website.
+
+
+OPEN SOURCE
+
+Dripwriter Origin is open source. Source code is available on GitHub at github.com/alexey-max-fedorov/dripwriter-origin.
