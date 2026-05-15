@@ -37,7 +37,10 @@
     ],
     "browser_specific_settings": {
       "gecko": {
-        "id": "dripwriter-origin@local.extension"
+        "id": "dripwriter-origin@local.extension",
+        "data_collection_permissions": {
+          "required": ["none"]
+        }
       }
     }
   }
