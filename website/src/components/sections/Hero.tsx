@@ -32,12 +32,7 @@ export function Hero() {
       />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-        {/* Left: mock Google Doc (decorative) */}
-        <div className="w-full lg:w-1/3 flex-shrink-0">
-          <MockGoogleDoc />
-        </div>
-
-        {/* Right: hero text + CTAs */}
+        {/* Hero text + CTAs (first in DOM for mobile) */}
         <div className="w-full lg:w-2/3 text-center lg:text-left">
           <motion.p
             initial={reduce ? {} : { opacity: 0, y: 12 }}
@@ -45,7 +40,7 @@ export function Hero() {
             transition={{ duration: 0.6 }}
             className="text-[#c9a84c] text-xs font-semibold tracking-[0.3em] uppercase mb-6"
           >
-            ✦ {VERSION_TAG} · Free &amp; open source
+            ✦ {VERSION_TAG} · Free & open source
           </motion.p>
 
           <h1
@@ -81,6 +76,11 @@ export function Hero() {
               See what it does
             </Button>
           </motion.div>
+        </div>
+
+        {/* Mock Google Doc (second in DOM, appears first on lg via order-first) */}
+        <div className="w-full lg:w-1/3 flex-shrink-0 lg:order-first">
+          <MockGoogleDoc />
         </div>
       </div>
     </section>
