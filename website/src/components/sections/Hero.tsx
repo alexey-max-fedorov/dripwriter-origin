@@ -33,7 +33,7 @@ export function Hero() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
         {/* Hero text + CTAs (first in DOM for mobile) */}
-        <div className="w-full lg:w-2/3 text-center lg:text-left">
+        <div className="w-full lg:w-2/3 min-w-0 text-center lg:text-left">
           <motion.p
             initial={reduce ? {} : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}

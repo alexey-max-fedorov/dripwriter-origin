@@ -18,9 +18,9 @@ export function useTypingEffect(
   { minDelay = 40, maxDelay = 120 }: Options = {}
 ): Result {
   const reduce = useReducedMotion();
-  const [displayed, setDisplayed] = useState(reduce ? text : "");
-  const [done, setDone] = useState(reduce ?? false);
-  const indexRef = useRef(reduce ? text.length : 0);
+  const [displayed, setDisplayed] = useState(reduce === true ? text : "");
+  const [done, setDone] = useState(reduce === true);
+  const indexRef = useRef(reduce === true ? text.length : 0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
