@@ -30,6 +30,10 @@ export function useTypingEffect(
       return;
     }
 
+    indexRef.current = 0;
+    setDisplayed("");
+    setDone(false);
+
     function typeNext() {
       if (indexRef.current >= text.length) {
         setDone(true);
