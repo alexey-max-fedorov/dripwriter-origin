@@ -1,6 +1,8 @@
 {
   "extends": "plasmo/templates/tsconfig.base",
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "types": ["chrome", "node", "react", "react-dom"],
     "paths": {
       "~*": ["./*"]
     },

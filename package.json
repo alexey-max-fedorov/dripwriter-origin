@@ -20,11 +20,11 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.270",
-    "@types/node": "^20.19.37",
+    "@types/chrome": "^0.1.42",
+    "@types/node": "^25.8.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "manifest": {
     "name": "Dripwriter Origin",
@@ -39,7 +39,9 @@
       "gecko": {
         "id": "dripwriter-origin@local.extension",
         "data_collection_permissions": {
-          "required": ["none"]
+          "required": [
+            "none"
+          ]
         }
       }
     }
