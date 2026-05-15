@@ -1,0 +1,44 @@
+{
+  "name": "dripwriter-origin",
+  "displayName": "Dripwriter Origin",
+  "version": "2.0.0",
+  "description": "Simulates human typing in Google Docs: natural speed, realistic typos, false starts, and breaks.",
+  "author": "Alexey Fedorov",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "plasmo dev",
+    "dev:firefox": "plasmo dev --target=firefox-mv3",
+    "build": "plasmo build",
+    "build:firefox": "plasmo build --target=firefox-mv3",
+    "package": "plasmo package && plasmo package --target=firefox-mv3",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "plasmo": "0.90.5",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.270",
+    "@types/node": "^20.19.37",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "typescript": "^5.9.3"
+  },
+  "manifest": {
+    "name": "Dripwriter Origin",
+    "permissions": [
+      "storage",
+      "tabs"
+    ],
+    "host_permissions": [
+      "https://docs.google.com/*"
+    ],
+    "browser_specific_settings": {
+      "gecko": {
+        "id": "dripwriter-origin@local.extension"
+      }
+    }
+  }
+}

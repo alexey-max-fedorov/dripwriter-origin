@@ -1,0 +1,713 @@
+import type { PlasmoCSConfig } from "plasmo";
+
+export const config: PlasmoCSConfig = {
+  matches: ["https://docs.google.com/document/*"],
+  run_at: "document_idle"
+};
+
+import {
+  type DripwriterMessage,
+  type DripwriterResponse,
+  DEFAULT_SETTINGS,
+  type DripwriterSettings,
+  type TypingStatus
+} from "./types";
+
+interface DocsTarget {
+  doc: Document;
+  element: HTMLElement;
+}
+
+interface RunState {
+  cancelled: boolean;
+  activeTypingMs: number;
+  nextBreakThresholdMs?: number;
+}
+
+interface DiagnosticMethod {
+  label: string;
+  description: string;
+  run: () => boolean;
+}
+
+const keyboardRows = [
+  { keys: "1234567890", offset: 0 },
+  { keys: "qwertyuiop", offset: 0.3 },
+  { keys: "asdfghjkl", offset: 0.8 },
+  { keys: "zxcvbnm", offset: 1.3 },
+  { keys: ",./", offset: 1.8 }
+];
+
+const neighborMap = buildNeighborMap();
+
+let activeRun: RunState | null = null;
+let releaseLock: (() => void) | null = null;
+let currentStatus: TypingStatus = {
+  running: false,
+  detail: "Idle. Click where you want the text to start, then press Start."
+};
+
+const DIAGNOSTIC_METHODS: DiagnosticMethod[] = [
+  {
+    label: "AAA",
+    description: "Paste event on iframe contenteditable",
+    run: () => dispatchDocsPaste(getDocsContentEditableTarget(), "AAA ")
+  },
+  {
+    label: "BBB",
+    description: "Paste event on iframe activeElement",
+    run: () => dispatchDocsPaste(getDocsActiveElementTarget(), "BBB ")
+  },
+  {
+    label: "CCC",
+    description: "Bubbling paste event on iframe contenteditable",
+    run: () => dispatchDocsPaste(getDocsContentEditableTarget(), "CCC ", { bubbles: true, cancelable: true })
+  },
+  {
+    label: "DDD",
+    description: "iframe execCommand insertText",
+    run: () => {
+      const doc = getDocsIframeDocument();
+      return doc ? tryExecInsert(doc, "DDD ") : false;
+    }
+  },
+  {
+    label: "EEE",
+    description: "window execCommand insertText",
+    run: () => tryExecInsert(document, "EEE ")
+  },
+  {
+    label: "FFF",
+    description: "beforeinput/input insertText on iframe contenteditable",
+    run: () => dispatchInsertEvents(getDocsContentEditableTarget(), "FFF ", "insertText")
+  },
+  {
+    label: "GGG",
+    description: "keydown/keypress/input/keyup on iframe contenteditable",
+    run: () => dispatchKeyboardTyping(getDocsContentEditableTarget(), "GGG ")
+  },
+  {
+    label: "HHH",
+    description: "beforeinput/input insertFromPaste on iframe contenteditable",
+    run: () => dispatchInsertEvents(getDocsContentEditableTarget(), "HHH ", "insertFromPaste")
+  }
+];
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  void handleMessage(message as DripwriterMessage).then(sendResponse);
+  return true;
+});
+
+async function handleMessage(message: DripwriterMessage): Promise<DripwriterResponse> {
+  if (message.type === "GET_STATUS") {
+    return { ok: true, status: currentStatus };
+  }
+
+  if (message.type === "STOP_DRIP") {
+    stopRun("Stopped.");
+    return { ok: true, status: currentStatus };
+  }
+
+  if (message.type === "RUN_DIAGNOSTICS") {
+    stopRun("Restarting diagnostics...");
+
+    const run: RunState = {
+      cancelled: false,
+      activeTypingMs: 0
+    };
+
+    activeRun = run;
+    acquireWakeLock();
+    setStatus(true, "Running typing diagnostics in 3...");
+
+    void runTypingDiagnostics(run);
+
+    return { ok: true, status: currentStatus };
+  }
+
+  if (!message.payload.text.trim()) {
+    setStatus(false, "Add some text in the popup first.");
+    return { ok: false, status: currentStatus, error: currentStatus.detail };
+  }
+
+  stopRun("Restarting...");
+
+  const run: RunState = {
+    cancelled: false,
+    activeTypingMs: 0
+  };
+
+  activeRun = run;
+  acquireWakeLock();
+  setStatus(true, "Starting to type in 3...");
+
+  void runDripwriter(run, normalizeSettings(message.payload));
+
+  return { ok: true, status: currentStatus };
+}
+
+function setStatus(running: boolean, detail: string) {
+  currentStatus = { running, detail };
+}
+
+function acquireWakeLock() {
+  void navigator.locks.request("dripwriter-active", () =>
+    new Promise<void>(resolve => { releaseLock = resolve; })
+  );
+}
+
+function releaseWakeLock() {
+  releaseLock?.();
+  releaseLock = null;
+}
+
+function stopRun(detail: string) {
+  if (activeRun) {
+    activeRun.cancelled = true;
+    activeRun = null;
+    releaseWakeLock();
+  }
+
+  setStatus(false, detail);
+}
+
+async function runDripwriter(run: RunState, settings: DripwriterSettings) {
+  try {
+    await runCountdown(run);
+
+    if (run.cancelled || activeRun !== run) {
+      return;
+    }
+
+    setStatus(true, "Typing...");
+
+    const text = settings.text.replace(/\r\n/g, "\n");
+
+    for (let index = 0; index < text.length; index += 1) {
+      if (run.cancelled || activeRun !== run) {
+        return;
+      }
+
+      const char = text[index];
+
+      if (shouldTakeBreak(run, settings, text, index)) {
+        await takeBreak(run, settings);
+      }
+
+      if (isWordStart(text, index) && Math.random() < settings.detourRate / 100) {
+        const detourWord = pickDetourWord(text, index);
+
+        if (detourWord) {
+          setStatus(true, `Typing... then deleting "${detourWord}"`);
+          await typeLiteral(run, detourWord, settings, false);
+          await wait(run, randomBetween(180, 320), true);
+          await deleteBackward(run, detourWord.length);
+          await wait(run, randomBetween(80, 160), true);
+          setStatus(true, "Typing...");
+        }
+      }
+
+      if (shouldMistype(char, settings) && !run.cancelled) {
+        const typo = getNearbyTypo(char);
+
+        if (typo) {
+          await insertText(run, typo);
+          await wait(run, charDelay(typo, settings) * 0.8, true);
+          await deleteBackward(run, 1);
+          await wait(run, charDelay(char, settings) * 0.45, true);
+        }
+      }
+
+      await insertText(run, char);
+      await wait(run, charDelay(char, settings), true);
+
+      if (index > 0 && index % 30 === 0) {
+        const progress = Math.round((index / text.length) * 100);
+        setStatus(true, `Typing... ${progress}%`);
+      }
+    }
+
+    if (!run.cancelled && activeRun === run) {
+      activeRun = null;
+      releaseWakeLock();
+      setStatus(false, "Finished typing.");
+    }
+  } catch (error) {
+    if (activeRun === run) {
+      activeRun = null;
+      releaseWakeLock();
+    }
+
+    const detail = error instanceof Error ? error.message : "Typing failed.";
+    setStatus(false, detail);
+  }
+}
+
+async function runTypingDiagnostics(run: RunState) {
+  try {
+    await runCountdownWithPrefix(run, "Running typing diagnostics");
+
+    for (const method of DIAGNOSTIC_METHODS) {
+      if (run.cancelled || activeRun !== run) {
+        return;
+      }
+
+      setStatus(true, `Testing ${method.label}: ${method.description}`);
+
+      try {
+        method.run();
+      } catch {
+        // Ignore per-method failures so the rest of the matrix still runs.
+      }
+
+      await wait(run, 900, false);
+    }
+
+    if (!run.cancelled && activeRun === run) {
+      activeRun = null;
+      releaseWakeLock();
+      setStatus(false, "Diagnostics finished. Check which markers appeared in the doc.");
+    }
+  } catch (error) {
+    if (activeRun === run) {
+      activeRun = null;
+      releaseWakeLock();
+    }
+
+    const detail = error instanceof Error ? error.message : "Diagnostics failed.";
+    setStatus(false, detail);
+  }
+}
+
+function normalizeSettings(settings: DripwriterSettings): DripwriterSettings {
+  const merged = { ...DEFAULT_SETTINGS, ...settings };
+  const breakMinSeconds = clamp(Math.round(merged.breakMinSeconds), 3, 60);
+  const breakMaxSeconds = clamp(Math.round(merged.breakMaxSeconds), breakMinSeconds, 90);
+
+  return {
+    text: merged.text,
+    wpm: clamp(Math.round(merged.wpm), 20, 150),
+    speedVariance: clamp(Math.round(merged.speedVariance), 0, 80),
+    typoRate: clamp(Math.round(merged.typoRate), 0, 30),
+    detourRate: clamp(Math.round(merged.detourRate), 0, 25),
+    breakFrequencySeconds: clamp(Math.round(merged.breakFrequencySeconds), 10, 600),
+    breakFrequencyVariance: clamp(Math.round(merged.breakFrequencyVariance), 0, 100),
+    breakMinSeconds,
+    breakMaxSeconds
+  };
+}
+
+function buildNeighborMap() {
+  const positions = new Map<string, { row: number; column: number }>();
+
+  keyboardRows.forEach((row, rowIndex) => {
+    [...row.keys].forEach((key, columnIndex) => {
+      positions.set(key, { row: rowIndex, column: row.offset + columnIndex });
+    });
+  });
+
+  const map = new Map<string, string[]>();
+
+  positions.forEach((position, key) => {
+    const neighbors: string[] = [];
+
+    positions.forEach((otherPosition, otherKey) => {
+      if (key === otherKey) {
+        return;
+      }
+
+      const rowDistance = Math.abs(position.row - otherPosition.row);
+      const columnDistance = Math.abs(position.column - otherPosition.column);
+
+      if (rowDistance <= 1 && columnDistance <= 1.2) {
+        neighbors.push(otherKey);
+      }
+    });
+
+    map.set(key, neighbors);
+  });
+
+  return map;
+}
+
+function shouldMistype(char: string, settings: DripwriterSettings) {
+  return /[a-zA-Z,./]/.test(char) && Math.random() < settings.typoRate / 100;
+}
+
+function getNearbyTypo(char: string) {
+  const lowercase = char.toLowerCase();
+  const neighbors = neighborMap.get(lowercase);
+
+  if (!neighbors?.length) {
+    return null;
+  }
+
+  const typo = neighbors[Math.floor(Math.random() * neighbors.length)];
+  return char === lowercase ? typo : typo.toUpperCase();
+}
+
+function shouldTakeBreak(
+  run: RunState,
+  settings: DripwriterSettings,
+  text: string,
+  index: number
+) {
+  if (run.nextBreakThresholdMs === undefined) {
+    run.nextBreakThresholdMs = computeBreakThreshold(settings);
+  }
+
+  if (run.activeTypingMs < run.nextBreakThresholdMs) {
+    return false;
+  }
+
+  const previousChar = text[index - 1] ?? "";
+  return /\s|[.,!?;:]/.test(previousChar);
+}
+
+function computeBreakThreshold(settings: DripwriterSettings) {
+  const variance = settings.breakFrequencyVariance / 100;
+  const multiplier = 1 + (Math.random() * 2 - 1) * variance;
+  return Math.max(1000, settings.breakFrequencySeconds * 1000 * multiplier);
+}
+
+async function takeBreak(run: RunState, settings: DripwriterSettings) {
+  const durationSeconds = randomBetween(settings.breakMinSeconds, settings.breakMaxSeconds);
+  run.activeTypingMs = 0;
+  run.nextBreakThresholdMs = computeBreakThreshold(settings);
+  setStatus(true, `Taking a ${durationSeconds.toFixed(1)}s break...`);
+  await wait(run, durationSeconds * 1000, false);
+  setStatus(true, "Typing...");
+}
+
+function isWordStart(text: string, index: number) {
+  const current = text[index];
+  const previous = text[index - 1] ?? " ";
+  return /[A-Za-z]/.test(current) && !/[A-Za-z]/.test(previous);
+}
+
+function pickDetourWord(text: string, index: number) {
+  const future = Array.from(text.slice(index).matchAll(/\b[A-Za-z][A-Za-z'-]{2,10}\b/g))
+    .map((match) => match[0])
+    .slice(1, 8)
+    .filter((word) => word.length >= 3 && word.length <= 10);
+
+  if (!future.length) {
+    return null;
+  }
+
+  return future[Math.floor(Math.random() * future.length)];
+}
+
+async function typeLiteral(
+  run: RunState,
+  text: string,
+  settings: DripwriterSettings,
+  allowMistakes: boolean
+) {
+  for (const char of text) {
+    if (run.cancelled || activeRun !== run) {
+      return;
+    }
+
+    if (allowMistakes && shouldMistype(char, settings)) {
+      const typo = getNearbyTypo(char);
+
+      if (typo) {
+        await insertText(run, typo);
+        await wait(run, charDelay(typo, settings) * 0.8, true);
+        await deleteBackward(run, 1);
+      }
+    }
+
+    await insertText(run, char);
+    await wait(run, charDelay(char, settings), true);
+  }
+}
+
+async function insertText(run: RunState, text: string) {
+  const target = ensureEditorTarget(run);
+
+  if (!target) {
+    throw new Error("The Google Docs cursor was lost. Click back into the document and retry.");
+  }
+
+  if (tryExecInsert(target.doc, text)) {
+    return;
+  }
+
+  // execCommand failed (deprecated/unsupported); fall back to synthetic input events
+  dispatchInsertEvents(target.element, text, "insertText");
+}
+
+async function deleteBackward(run: RunState, count: number) {
+  for (let index = 0; index < count; index += 1) {
+    if (run.cancelled || activeRun !== run) {
+      return;
+    }
+
+    const target = ensureEditorTarget(run);
+
+    if (!target) {
+      throw new Error("The Google Docs cursor was lost while deleting.");
+    }
+
+    if (dispatchBackspace(target.element)) {
+      await wait(run, randomBetween(35, 85), true);
+      continue;
+    }
+
+    if (tryExecDelete(target.doc)) {
+      await wait(run, randomBetween(35, 85), true);
+      continue;
+    }
+
+    throw new Error("Unable to delete text in Google Docs.");
+  }
+}
+
+function ensureEditorTarget(run: RunState): DocsTarget | null {
+  const target = findDocsTarget();
+
+  if (target) {
+    target.element.focus({ preventScroll: true });
+    return target;
+  }
+
+  return null;
+}
+
+async function runCountdown(run: RunState) {
+  await runCountdownWithPrefix(run, "Starting to type");
+}
+
+async function runCountdownWithPrefix(run: RunState, prefix: string) {
+  for (const step of [3, 2, 1]) {
+    if (run.cancelled || activeRun !== run) {
+      return;
+    }
+
+    setStatus(true, `${prefix} in ${step}...`);
+    await wait(run, 1000, false);
+  }
+}
+
+function findDocsTarget(): DocsTarget | null {
+  const doc = getDocsIframeDocument();
+  const element = getDocsContentEditableTarget();
+
+  if (doc && element) {
+    return { doc, element };
+  }
+
+  return null;
+}
+
+function tryExecDelete(doc: Document) {
+  try {
+    return doc.execCommand("delete");
+  } catch {
+    return false;
+  }
+}
+
+function tryExecInsert(doc: Document, text: string) {
+  try {
+    return doc.execCommand("insertText", false, text);
+  } catch {
+    return false;
+  }
+}
+
+function dispatchBackspace(element: HTMLElement | null) {
+  if (!element) {
+    return false;
+  }
+
+  try {
+    element.focus({ preventScroll: true });
+
+    element.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Backspace",
+        code: "Backspace",
+        keyCode: 8,
+        which: 8,
+        bubbles: true
+      })
+    );
+    element.dispatchEvent(
+      new InputEvent("beforeinput", {
+        bubbles: true,
+        cancelable: true,
+        inputType: "deleteContentBackward"
+      })
+    );
+    element.dispatchEvent(
+      new InputEvent("input", {
+        bubbles: true,
+        inputType: "deleteContentBackward"
+      })
+    );
+    element.dispatchEvent(
+      new KeyboardEvent("keyup", {
+        key: "Backspace",
+        code: "Backspace",
+        keyCode: 8,
+        which: 8,
+        bubbles: true
+      })
+    );
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function getDocsIframeDocument() {
+  const iframe = document.querySelector<HTMLIFrameElement>("iframe.docs-texteventtarget-iframe");
+  return iframe?.contentDocument ?? null;
+}
+
+function getDocsContentEditableTarget() {
+  return getDocsIframeDocument()?.querySelector<HTMLElement>("[contenteditable=true]") ?? null;
+}
+
+function getDocsActiveElementTarget() {
+  const activeElement = getDocsIframeDocument()?.activeElement;
+  return activeElement instanceof HTMLElement ? activeElement : null;
+}
+
+function dispatchDocsPaste(
+  element: HTMLElement | null,
+  text: string,
+  options: Pick<ClipboardEventInit, "bubbles" | "cancelable"> = {}
+) {
+  try {
+    if (!element) {
+      return false;
+    }
+
+    const data = new DataTransfer();
+    data.setData("text/plain", text);
+
+    const pasteEvent = new ClipboardEvent("paste", { ...options, clipboardData: data });
+    pasteEvent.clipboardData?.setData("text/plain", text);
+
+    element.dispatchEvent(pasteEvent);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function dispatchInsertEvents(
+  element: HTMLElement | null,
+  text: string,
+  inputType: "insertText" | "insertFromPaste"
+) {
+  if (!element) {
+    return false;
+  }
+
+  try {
+    element.focus({ preventScroll: true });
+    element.dispatchEvent(
+      new InputEvent("beforeinput", {
+        bubbles: true,
+        cancelable: true,
+        data: text,
+        inputType
+      })
+    );
+    element.dispatchEvent(
+      new InputEvent("input", {
+        bubbles: true,
+        data: text,
+        inputType
+      })
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function dispatchKeyboardTyping(element: HTMLElement | null, text: string) {
+  if (!element) {
+    return false;
+  }
+
+  try {
+    element.focus({ preventScroll: true });
+
+    for (const char of text) {
+      const code = /^[A-Z]$/.test(char) ? `Key${char}` : char === " " ? "Space" : "";
+
+      element.dispatchEvent(new KeyboardEvent("keydown", { key: char, code, bubbles: true }));
+      element.dispatchEvent(new KeyboardEvent("keypress", { key: char, code, bubbles: true }));
+      element.dispatchEvent(
+        new InputEvent("beforeinput", {
+          bubbles: true,
+          cancelable: true,
+          data: char,
+          inputType: "insertText"
+        })
+      );
+      element.dispatchEvent(
+        new InputEvent("input", {
+          bubbles: true,
+          data: char,
+          inputType: "insertText"
+        })
+      );
+      element.dispatchEvent(new KeyboardEvent("keyup", { key: char, code, bubbles: true }));
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function charDelay(char: string, settings: DripwriterSettings) {
+  const baseDelay = 60000 / (settings.wpm * 5);
+  const variance = settings.speedVariance / 100;
+  const minMultiplier = Math.max(0.12, 1 - variance);
+  const maxMultiplier = 1 + variance;
+  let delay = baseDelay * randomBetween(minMultiplier, maxMultiplier);
+
+  if (char === " ") {
+    delay *= 0.55;
+  } else if (char === "\n") {
+    delay *= 3.8;
+  } else if (/[.,!?;:]/.test(char)) {
+    delay *= 2.7;
+  } else if (/[A-Z]/.test(char)) {
+    delay *= 1.15;
+  }
+
+  return delay;
+}
+
+async function wait(run: RunState, ms: number, countsTowardTyping: boolean) {
+  if (countsTowardTyping) {
+    run.activeTypingMs += ms;
+  }
+
+  if (run.cancelled || activeRun !== run) {
+    return;
+  }
+
+  await new Promise<void>((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+function randomBetween(min: number, max: number) {
+  return min + Math.random() * (max - min);
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}

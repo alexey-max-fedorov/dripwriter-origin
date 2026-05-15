@@ -1,0 +1,30 @@
+User-agent: *
+Allow: /
+
+# Allow AI search crawlers explicitly
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Block training-only scrapers (not search/citation bots)
+User-agent: CCBot
+Disallow: /
+
+Sitemap: https://dripwriter.org/sitemap.xml
