@@ -5,6 +5,7 @@ import { ArrowRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { VERSION_TAG } from "@/lib/version";
+import { MockGoogleDoc } from "@/components/ui/MockGoogleDoc";
 
 export function Hero() {
   const reduce = useReducedMotion();
@@ -30,49 +31,57 @@ export function Hero() {
         }}
       />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-        <motion.p
-          initial={reduce ? {} : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-[#c9a84c] text-xs font-semibold tracking-[0.3em] uppercase mb-6"
-        >
-          ✦ {VERSION_TAG} · Free &amp; open source
-        </motion.p>
+      <div className="relative z-10 max-w-6xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+        {/* Left: mock Google Doc (decorative) */}
+        <div className="w-full lg:w-1/3 flex-shrink-0">
+          <MockGoogleDoc />
+        </div>
 
-        <h1
-          className="text-5xl sm:text-6xl lg:text-8xl leading-[1.05] text-white mb-6"
-          style={{ fontFamily: "var(--font-playfair-display)" }}
-        >
-          <AnimatedText>Type into Google Docs like a human.</AnimatedText>
-        </h1>
+        {/* Right: hero text + CTAs */}
+        <div className="w-full lg:w-2/3 text-center lg:text-left">
+          <motion.p
+            initial={reduce ? {} : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-[#c9a84c] text-xs font-semibold tracking-[0.3em] uppercase mb-6"
+          >
+            ✦ {VERSION_TAG} · Free &amp; open source
+          </motion.p>
 
-        <motion.p
-          initial={reduce ? {} : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-[#a0a0a0] text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-10"
-        >
-          Dripwriter Origin pastes your text into a Google Doc one believable
-          keystroke at a time — with adjustable speed, keyboard-neighbor typos
-          that auto-correct, false-start words, and short breaks.
-        </motion.p>
+          <h1
+            className="text-5xl sm:text-6xl lg:text-8xl leading-[1.05] text-white mb-6"
+            style={{ fontFamily: "var(--font-playfair-display)" }}
+          >
+            <AnimatedText>Type into Google Docs like a human.</AnimatedText>
+          </h1>
 
-        <motion.div
-          initial={reduce ? {} : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
-        >
-          <Button variant="primary" size="lg" href="/get">
-            <Download size={18} />
-            Get the Extension
-            <ArrowRight size={18} />
-          </Button>
-          <Button variant="outline" size="lg" href="#features">
-            See what it does
-          </Button>
-        </motion.div>
+          <motion.p
+            initial={reduce ? {} : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-[#a0a0a0] text-base sm:text-lg leading-relaxed mb-10"
+          >
+            Dripwriter Origin pastes your text into a Google Doc one believable
+            keystroke at a time — with adjustable speed, keyboard-neighbor typos
+            that auto-correct, false-start words, and short breaks.
+          </motion.p>
+
+          <motion.div
+            initial={reduce ? {} : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+          >
+            <Button variant="primary" size="lg" href="/get">
+              <Download size={18} />
+              Get the Extension
+              <ArrowRight size={18} />
+            </Button>
+            <Button variant="outline" size="lg" href="#features">
+              See what it does
+            </Button>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
