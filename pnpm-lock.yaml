@@ -10,13 +10,13 @@ importers:
     dependencies:
       plasmo:
         specifier: 0.90.5
-        version: 0.90.5(@swc/core@1.15.33(@swc/helpers@0.5.21))(@swc/helpers@0.5.21)(@types/node@25.8.0)(postcss@8.5.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 0.90.5(@swc/core@1.15.33(@swc/helpers@0.5.21))(@swc/helpers@0.5.21)(@types/node@25.8.0)(postcss@8.5.14)(react-dom@19.2.4(react@19.2.6))(react@19.2.6)
       react:
-        specifier: 19.2.4
-        version: 19.2.4
+        specifier: 19.2.6
+        version: 19.2.6
       react-dom:
         specifier: 19.2.4
-        version: 19.2.4(react@19.2.4)
+        version: 19.2.4(react@19.2.6)
     devDependencies:
       '@types/chrome':
         specifier: ^0.1.42
@@ -3086,10 +3086,6 @@ packages:
     resolution: {integrity: sha512-Gvzk7OZpiqKSkxsQvO/mbTN1poglhmAV7gR/DdIrRrSMXraRQQlfikRJOr3Nb9GTMPC5kof948Zy6jJZIFtDvQ==}
     engines: {node: '>=0.10.0'}
 
-  react@19.2.4:
-    resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
-    engines: {node: '>=0.10.0'}
-
   react@19.2.6:
     resolution: {integrity: sha512-sfWGGfavi0xr8Pg0sVsyHMAOziVYKgPLNrS7ig+ivMNb3wbCBw3KxtflsGBAwD3gYQlE/AEZsTLgToRrSCjb0Q==}
     engines: {node: '>=0.10.0'}
@@ -4784,12 +4780,12 @@ snapshots:
       '@parcel/utils': 2.9.3
       nullthrows: 1.1.1
 
-  '@plasmohq/consolidate@0.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@plasmohq/consolidate@0.17.0(react-dom@19.2.4(react@19.2.6))(react@19.2.6)':
     dependencies:
       bluebird: 3.7.2
     optionalDependencies:
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
+      react: 19.2.6
+      react-dom: 19.2.4(react@19.2.6)
 
   '@plasmohq/init@0.7.0': {}
 
@@ -4809,7 +4805,7 @@ snapshots:
     transitivePeerDependencies:
       - '@parcel/core'
 
-  '@plasmohq/parcel-config@0.42.0(@swc/core@1.15.33(@swc/helpers@0.5.21))(@swc/helpers@0.5.21)(postcss@8.5.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.8.2)':
+  '@plasmohq/parcel-config@0.42.0(@swc/core@1.15.33(@swc/helpers@0.5.21))(@swc/helpers@0.5.21)(postcss@8.5.14)(react-dom@19.2.4(react@19.2.6))(react@19.2.6)(typescript@5.8.2)':
     dependencies:
       '@parcel/compressor-raw': 2.9.3(@parcel/core@2.9.3)
       '@parcel/config-default': 2.9.3(@parcel/core@2.9.3)(@swc/helpers@0.5.21)(postcss@8.5.14)(typescript@5.8.2)
@@ -4845,7 +4841,7 @@ snapshots:
       '@plasmohq/parcel-transformer-inline-css': 0.3.11
       '@plasmohq/parcel-transformer-manifest': 0.21.0
       '@plasmohq/parcel-transformer-svelte': 0.6.0
-      '@plasmohq/parcel-transformer-vue': 0.5.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@plasmohq/parcel-transformer-vue': 0.5.0(react-dom@19.2.4(react@19.2.6))(react@19.2.6)
     transitivePeerDependencies:
       - '@swc/core'
       - '@swc/helpers'
@@ -5027,7 +5023,7 @@ snapshots:
       '@parcel/utils': 2.9.3
       svelte: 4.2.2
 
-  '@plasmohq/parcel-transformer-vue@0.5.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@plasmohq/parcel-transformer-vue@0.5.0(react-dom@19.2.4(react@19.2.6))(react@19.2.6)':
     dependencies:
       '@parcel/core': 2.9.3
       '@parcel/diagnostic': 2.9.3
@@ -5035,7 +5031,7 @@ snapshots:
       '@parcel/source-map': 2.1.1
       '@parcel/types': 2.9.3(@parcel/core@2.9.3)
       '@parcel/utils': 2.9.3
-      '@plasmohq/consolidate': 0.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@plasmohq/consolidate': 0.17.0(react-dom@19.2.4(react@19.2.6))(react@19.2.6)
       '@vue/compiler-sfc': 3.3.4
       nullthrows: 1.1.1
       semver: 7.5.4
@@ -6444,7 +6440,7 @@ snapshots:
 
   pirates@4.0.7: {}
 
-  plasmo@0.90.5(@swc/core@1.15.33(@swc/helpers@0.5.21))(@swc/helpers@0.5.21)(@types/node@25.8.0)(postcss@8.5.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  plasmo@0.90.5(@swc/core@1.15.33(@swc/helpers@0.5.21))(@swc/helpers@0.5.21)(@types/node@25.8.0)(postcss@8.5.14)(react-dom@19.2.4(react@19.2.6))(react@19.2.6):
     dependencies:
       '@expo/spawn-async': 1.7.2
       '@parcel/core': 2.9.3
@@ -6452,7 +6448,7 @@ snapshots:
       '@parcel/package-manager': 2.9.3(@parcel/core@2.9.3)
       '@parcel/watcher': 2.5.1
       '@plasmohq/init': 0.7.0
-      '@plasmohq/parcel-config': 0.42.0(@swc/core@1.15.33(@swc/helpers@0.5.21))(@swc/helpers@0.5.21)(postcss@8.5.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.8.2)
+      '@plasmohq/parcel-config': 0.42.0(@swc/core@1.15.33(@swc/helpers@0.5.21))(@swc/helpers@0.5.21)(postcss@8.5.14)(react-dom@19.2.4(react@19.2.6))(react@19.2.6)(typescript@5.8.2)
       '@plasmohq/parcel-core': 0.1.11
       buffer: 6.0.3
       chalk: 5.4.1
@@ -6594,9 +6590,9 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  react-dom@19.2.4(react@19.2.4):
+  react-dom@19.2.4(react@19.2.6):
     dependencies:
-      react: 19.2.4
+      react: 19.2.6
       scheduler: 0.27.0
 
   react-dom@19.2.6(react@19.2.6):
@@ -6609,8 +6605,6 @@ snapshots:
   react-refresh@0.14.0: {}
 
   react-refresh@0.9.0: {}
-
-  react@19.2.4: {}
 
   react@19.2.6: {}
 
