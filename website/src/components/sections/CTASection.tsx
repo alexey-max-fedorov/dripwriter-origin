@@ -1,10 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Download } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { BrowserIcon } from "@/components/ui/BrowserIcon";
+import { useBrowser } from "@/lib/useBrowser";
 
 export function CTASection() {
+  const { browser, storeLabel } = useBrowser();
+
   return (
     <section className="py-24 lg:py-32 relative overflow-hidden">
       <div
@@ -35,9 +38,14 @@ export function CTASection() {
           Free, open source, runs entirely in your browser. Install once, tune once, paste forever.
         </motion.p>
         <div className="flex justify-center">
-          <Button variant="primary" size="lg" href="/get">
-            <Download size={18} />
-            Get the Extension
+          <Button
+            variant="primary"
+            size="lg"
+            href="https://extension.dripwriter.org"
+            external
+          >
+            <BrowserIcon browser={browser} size={18} />
+            Install on {storeLabel}
           </Button>
         </div>
       </div>
