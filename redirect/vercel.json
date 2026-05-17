@@ -1,0 +1,76 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "extension.dripwriter.org" },
+        { "type": "header", "key": "user-agent", "value": ".*Firefox.*" }
+      ],
+      "destination": "https://addons.mozilla.org/en-US/firefox/addon/dripwriter-origin/?utm_source=extension.dripwriter.org",
+      "statusCode": 301
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "extension.dripwriter.org" },
+        { "type": "header", "key": "user-agent", "value": ".*Edg/.*" }
+      ],
+      "destination": "https://microsoftedge.microsoft.com/addons/detail/dripwriter-origin/iglhighcgeehoobmdimegicldnchcaoh?utm_source=extension.dripwriter.org",
+      "statusCode": 301
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "extension.dripwriter.org" }],
+      "destination": "https://chromewebstore.google.com/detail/cnkagcdjffdfjemggoeaibjlhoeckmgh?utm_source=extension.dripwriter.org",
+      "statusCode": 301
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "chrome.dripwriter.org" }],
+      "destination": "https://chromewebstore.google.com/detail/cnkagcdjffdfjemggoeaibjlhoeckmgh?utm_source=chrome.dripwriter.org",
+      "statusCode": 301
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "edge.dripwriter.org" }],
+      "destination": "https://microsoftedge.microsoft.com/addons/detail/dripwriter-origin/iglhighcgeehoobmdimegicldnchcaoh?utm_source=edge.dripwriter.org",
+      "statusCode": 301
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "firefox.dripwriter.org" }],
+      "destination": "https://addons.mozilla.org/en-US/firefox/addon/dripwriter-origin/?utm_source=firefox.dripwriter.org",
+      "statusCode": 301
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "privacy.dripwriter.org" }],
+      "destination": "https://dripwriter.org/privacy?utm_source=privacy.dripwriter.org",
+      "statusCode": 301
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "gh.dripwriter.org" }],
+      "destination": "https://github.com/alexey-max-fedorov/dripwriter-origin",
+      "statusCode": 301
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "github.dripwriter.org" }],
+      "destination": "https://github.com/alexey-max-fedorov/dripwriter-origin",
+      "statusCode": 301
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "support.dripwriter.org" }],
+      "destination": "https://github.com/alexey-max-fedorov/dripwriter-origin/issues/new",
+      "statusCode": 301
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "contact.dripwriter.org" }],
+      "destination": "https://github.com/alexey-max-fedorov/dripwriter-origin/issues/new",
+      "statusCode": 301
+    }
+  ]
+}
