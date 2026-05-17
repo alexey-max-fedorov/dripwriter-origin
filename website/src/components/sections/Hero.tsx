@@ -1,14 +1,17 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Download } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { AnimatedText } from "@/components/ui/AnimatedText";
+import { BrowserIcon } from "@/components/ui/BrowserIcon";
 import { VERSION_TAG } from "@/lib/version";
 import { MockGoogleDoc } from "@/components/ui/MockGoogleDoc";
+import { useBrowser } from "@/lib/useBrowser";
 
 export function Hero() {
   const reduce = useReducedMotion();
+  const { browser, storeLabel } = useBrowser();
 
   return (
     <section
@@ -32,7 +35,6 @@ export function Hero() {
       />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-        {/* Hero text + CTAs (first in DOM for mobile) */}
         <div className="w-full lg:w-2/3 min-w-0 text-center lg:text-left">
           <motion.p
             initial={reduce ? {} : { opacity: 0, y: 12 }}
@@ -67,9 +69,14 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
           >
-            <Button variant="primary" size="lg" href="/get">
-              <Download size={18} />
-              Get the Extension
+            <Button
+              variant="primary"
+              size="lg"
+              href="https://extension.dripwriter.org"
+              external
+            >
+              <BrowserIcon browser={browser} size={18} />
+              Install on {storeLabel}
               <ArrowRight size={18} />
             </Button>
             <Button variant="outline" size="lg" href="#features">
@@ -78,7 +85,6 @@ export function Hero() {
           </motion.div>
         </div>
 
-        {/* Mock Google Doc (second in DOM, appears first on lg via order-first) */}
         <div className="w-full lg:w-1/3 flex-shrink-0 lg:order-first">
           <MockGoogleDoc />
         </div>
