@@ -25,11 +25,11 @@ Writers, students, content creators, and demo authors who want pre-prepared text
 - Price: Free for noncommercial use
 - Supported browsers: Chrome, Microsoft Edge, Firefox
 - Built with: Plasmo, React 19, TypeScript
-- Install: https://dripwriter.org/get
+- Install: https://extension.dripwriter.org
 - Domain: dripwriter.org
 - Maintainer: Alexey Fedorov (alexey.max.fedorov@gmail.com)
 
 ## Important pages
 
 - Homepage: https://dripwriter.org
-- Get the extension: https://dripwriter.org/get
+- Get the extension: https://extension.dripwriter.org
