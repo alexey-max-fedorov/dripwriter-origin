@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      {
+        source: "/get",
+        destination: "https://extension.dripwriter.org",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
