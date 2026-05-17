@@ -9,5 +9,5 @@
     "baseUrl": "."
   },
   "include": [".plasmo/index.d.ts", "./**/*.ts", "./**/*.tsx"],
-  "exclude": ["node_modules", "build", "website", "meta", ".claude"]
+  "exclude": ["node_modules", "build", "website", "meta", ".claude", "redirect"]
 }
