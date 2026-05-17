@@ -62,8 +62,8 @@ export function Navbar() {
               {link.label}
             </a>
           ))}
-          <Button variant="primary" size="sm" href="/get">
-            Get the Extension
+          <Button variant="primary" size="sm" href="https://extension.dripwriter.org" external>
+            Install Extension
           </Button>
         </div>
 
@@ -90,8 +90,8 @@ export function Navbar() {
                 {link.label}
               </a>
             ))}
-            <Button variant="primary" size="md" href="/get" className="mt-2">
-              Get the Extension
+            <Button variant="primary" size="md" href="https://extension.dripwriter.org" external className="mt-2">
+              Install Extension
             </Button>
           </div>
         </div>
