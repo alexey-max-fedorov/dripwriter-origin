@@ -59,7 +59,7 @@ const jsonLd = {
       name: "Dripwriter Origin",
       alternateName: ["Dripwriter", "Dripwriter Google Docs Extension"],
       url: "https://dripwriter.org",
-      downloadUrl: "https://dripwriter.org/get",
+      downloadUrl: "https://extension.dripwriter.org",
       applicationCategory: "BrowserApplication",
       operatingSystem: "Chrome, Edge, Firefox",
       offers: {
@@ -100,7 +100,7 @@ const jsonLd = {
           name: "How do I install Dripwriter Origin?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Visit dripwriter.org/get for the latest packaged build, or load the unpacked extension from the repository's build directory. Open a Google Doc, click the Dripwriter Origin toolbar icon, paste your text, tune the sliders, and press Start."
+            text: "Install Dripwriter Origin from the Chrome Web Store, Edge Add-Ons, or Mozilla Add-Ons — extension.dripwriter.org routes you to the right store for your browser. Open a Google Doc, click the Dripwriter Origin toolbar icon, paste your text, tune the sliders, and press Start."
           }
         },
         {
