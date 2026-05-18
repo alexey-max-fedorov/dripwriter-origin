@@ -851,9 +851,14 @@ function applyApiMode(enabled: boolean) {
       action: "enable",
       version: VERSION
     });
-  } else {
-    postBridgeControl({ source: BRIDGE_CONTROL_SOURCE, action: "disable" });
+    return;
   }
+
+  // Disable: stop API-induced runs only (popup-induced runs have no onSettled).
+  if (activeRun?.onSettled) {
+    stopDrip();
+  }
+  postBridgeControl({ source: BRIDGE_CONTROL_SOURCE, action: "disable" });
 }
 
 void chrome.storage.local

@@ -14,7 +14,7 @@ This is the same typing engine that powers the popup's Start / Run Test / Stop b
 2. Toggle **Enable API mode** at the bottom of the popup.
 3. The API is now active on every currently-open Google Docs tab. No reload required.
 
-Toggling off removes `window._dripwriter` from every Docs tab immediately. Any in-flight `start()` Promises reject with `"Dripwriter API mode was disabled."`.
+Toggling off removes `window._dripwriter` from every Docs tab immediately. Any in-flight `start()` Promises reject with `"Dripwriter API mode was disabled."`, and the typing engine is stopped if the active run was API-initiated. Popup-initiated runs are not affected — they keep typing.
 
 ## Minimum example
 

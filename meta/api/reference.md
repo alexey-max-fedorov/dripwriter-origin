@@ -42,6 +42,8 @@ Begins a typing run using a **snapshot** of `_dripwriter.config` as it is at the
 - The run is cancelled (by `stop()`, by another `start()` call, by API mode being disabled, or by the popup's Stop button) — `"cancelled"`
 - API mode is disabled while the run is pending — `"Dripwriter API mode was disabled."`
 
+When API mode is disabled while an **API-initiated** run is in progress, the typing engine is also stopped (the pending Promise rejects with `"Dripwriter API mode was disabled."` and the run is cancelled). Runs started from the popup's Start button are **not** affected by disabling API mode — they keep running.
+
 **Behavior:**
 - If a previous run is in progress, it is stopped before this one starts. The previous run's Promise rejects with `"cancelled"`.
 - The first 3 seconds of every run are a countdown (`"Starting to type in 3...", "...in 2..."`, `"...in 1..."`). This is identical to the popup behavior.
