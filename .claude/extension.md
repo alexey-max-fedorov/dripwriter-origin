@@ -8,6 +8,7 @@ Plasmo framework, Manifest V3, dual Chrome + Firefox builds.
 |------|------|
 | `popup.tsx` | React popup UI; sends messages to the active tab's content script |
 | `content.ts` | Content script injected into every tab; owns all typing simulation logic |
+| `contents/bridge.ts` | MAIN-world content script; exposes `window._dripwriter` API in Google Docs tabs when API mode is enabled |
 | `types.ts` | Shared types, message protocol, and `DEFAULT_SETTINGS` |
 | `popup.css` | All popup styles (Google Fonts, mixer layout, range sliders, themes) |
 | `lib/version.ts` | `VERSION_TAG` constant shown in popup footer |
@@ -53,6 +54,17 @@ Response is always `DripwriterResponse { ok, status, error? }`.
 - `typeLiteral` — types a string char-by-char with jitter, typos, detours
 - `shouldTakeBreak` / `takeBreak` — pause logic
 - `findDocsTarget` — detects Google Docs iframe vs. contenteditable vs. input
+
+## Console API (`window._dripwriter`)
+
+When the popup's **Enable API mode** toggle is on, `contents/bridge.ts` (MAIN-world content script) exposes `window._dripwriter` on every open Google Docs tab. `content.ts` (isolated) drives it via `window.postMessage` and gates it via `chrome.storage.local["dripwriterApiMode"]`.
+
+| File | Role |
+|------|------|
+| `contents/bridge.ts` | MAIN-world content script. Defines `window._dripwriter` with `config`, `start()`, `stop()`, `test()`, `status()`, `version`. |
+| `content.ts` | Isolated content script. Listens for bridge requests via `window.message`; listens for `chrome.storage.onChanged` to enable/disable the bridge. |
+
+API docs: `meta/api/README.md`, `meta/api/reference.md`.
 
 ## Build Outputs
 
