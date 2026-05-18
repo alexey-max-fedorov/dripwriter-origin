@@ -4,7 +4,7 @@ This document covers every property and method on `window._dripwriter` in full d
 
 ## `_dripwriter.version: string`
 
-Read-only. The current extension version (e.g. `"2.0.0"`). Matches the value displayed in the popup footer. The value is provided by the isolated content script at the moment API mode is enabled.
+Read-only. The current extension version (e.g. `"2.1.0"`). Matches the value displayed in the popup footer. The value is provided by the isolated content script at the moment API mode is enabled.
 
 ## `_dripwriter.config: DripwriterSettings`
 

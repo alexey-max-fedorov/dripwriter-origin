@@ -51,7 +51,7 @@ Values outside their valid range are clamped at `start()` time, never on assignm
 | `_dripwriter.stop()` | `Promise<void>` | Cancels the active run; resolves once the cancellation is acknowledged |
 | `_dripwriter.test()` | `Promise<void>` | Runs the input-event diagnostic matrix; resolves when all methods have been tried |
 | `_dripwriter.status()` | `Promise<{ running: boolean, detail: string }>` | Fetches the current run status |
-| `_dripwriter.version` | `string` | Extension semver (e.g. `"2.0.0"`) |
+| `_dripwriter.version` | `string` | Extension semver (e.g. `"2.1.0"`) |
 
 For full per-method behavior and edge cases see [reference.md](./reference.md).
 
