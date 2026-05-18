@@ -38,7 +38,9 @@ const pending = new Map<string, {
   reject: (error: Error) => void;
 }>();
 
-let apiVersion = "0.0.0";
+export const VERSION = "2.1.0";
+
+let apiVersion = VERSION;
 
 window.addEventListener("message", (event) => {
   if (event.source !== window) return;

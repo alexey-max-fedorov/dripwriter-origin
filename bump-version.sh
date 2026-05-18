@@ -36,8 +36,13 @@ sed -i '' "s/^export const VERSION = \".*\";/export const VERSION = \"$NEW_VERSI
 sed -i '' "s/^export const VERSION = \".*\";/export const VERSION = \"$NEW_VERSION\";/" \
   "$ROOT/website/src/lib/version.ts"
 
+# Update contents/bridge.ts (MAIN-world content script)
+sed -i '' "s/^export const VERSION = \".*\";/export const VERSION = \"$NEW_VERSION\";/" \
+  "$ROOT/contents/bridge.ts"
+
 echo "✓ Bumped to v$NEW_VERSION"
 echo "  → package.json"
 echo "  → website/package.json"
 echo "  → lib/version.ts"
 echo "  → website/src/lib/version.ts"
+echo "  → contents/bridge.ts"
