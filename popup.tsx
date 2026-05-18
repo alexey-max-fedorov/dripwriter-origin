@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
+  API_MODE_STORAGE_KEY,
   DEFAULT_SETTINGS,
   type DripwriterMessage,
   type DripwriterResponse,
@@ -58,6 +59,8 @@ function PopupView() {
   const [titleLen, setTitleLen] = useState(TITLE.length);
   const loaded = useRef(false);
   const themeLoaded = useRef(false);
+  const [apiMode, setApiMode] = useState<boolean>(false);
+  const apiModeLoaded = useRef(false);
 
   // Load persisted settings on mount, then ask the active tab for current status.
   useEffect(() => {
@@ -109,6 +112,18 @@ function PopupView() {
     if (!themeLoaded.current) return;
     void chrome.storage.local.set({ [THEME_KEY]: theme });
   }, [theme]);
+
+  useEffect(() => {
+    chrome.storage.local.get({ [API_MODE_STORAGE_KEY]: false }).then(r => {
+      setApiMode(Boolean(r[API_MODE_STORAGE_KEY]));
+      apiModeLoaded.current = true;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!apiModeLoaded.current) return;
+    void chrome.storage.local.set({ [API_MODE_STORAGE_KEY]: apiMode });
+  }, [apiMode]);
 
   // Typewriter title reveal — once per tab per browser session.
   useEffect(() => {
@@ -305,6 +320,25 @@ function PopupView() {
         <span className="footer-brand">Dripwriter Origin</span>
         <span className="popup-version">{VERSION_TAG}</span>
       </footer>
+
+      <div className="api-toggle">
+        <label className="api-toggle__row">
+          <input
+            type="checkbox"
+            checked={apiMode}
+            onChange={(e) => setApiMode(e.target.checked)}
+          />
+          <span className="api-toggle__label">Enable API mode</span>
+          <span
+            className="api-toggle__pill"
+            aria-hidden
+            data-on={apiMode}
+          />
+        </label>
+        <p className="api-toggle__hint">
+          Exposes <code>window._dripwriter</code> in Google Docs tabs. Active immediately — no reload needed.
+        </p>
+      </div>
     </main>
   );
 }

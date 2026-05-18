@@ -384,3 +384,88 @@ body[data-theme="light"] {
     min-width: 360px;
   }
 }
+
+/* ---- API mode toggle (below footer) ---- */
+
+.api-toggle {
+  padding: 0 18px 16px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.api-toggle__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.api-toggle__row input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+.api-toggle__label {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.api-toggle__pill {
+  width: 32px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  border: 1px solid var(--border);
+  position: relative;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.api-toggle__pill::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.api-toggle__pill[data-on="true"] {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.api-toggle__pill[data-on="true"]::after {
+  transform: translateX(14px);
+  background: var(--bg-primary);
+}
+
+.api-toggle__row:hover .api-toggle__pill {
+  border-color: var(--border-hover);
+}
+
+.api-toggle__hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+.api-toggle__hint code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  background: var(--gold-soft);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
