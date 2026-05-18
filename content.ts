@@ -6,12 +6,20 @@ export const config: PlasmoCSConfig = {
 };
 
 import {
+  API_MODE_STORAGE_KEY,
+  BRIDGE_CONTROL_SOURCE,
+  BRIDGE_REQUEST_SOURCE,
+  BRIDGE_RESPONSE_SOURCE,
+  type BridgeControl,
+  type BridgeRequest,
+  type BridgeResponse,
   type DripwriterMessage,
   type DripwriterResponse,
   DEFAULT_SETTINGS,
   type DripwriterSettings,
   type TypingStatus
 } from "./types";
+import { VERSION } from "~/lib/version";
 
 interface DocsTarget {
   doc: Document;
@@ -747,3 +755,116 @@ function randomBetween(min: number, max: number) {
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
+
+// ---- Bridge IPC (window._dripwriter) ----
+
+window.addEventListener("message", (event) => {
+  if (event.source !== window) return;
+  if (event.origin !== window.location.origin) return;
+
+  const data = event.data;
+  if (!data || typeof data !== "object" || data.source !== BRIDGE_REQUEST_SOURCE) {
+    return;
+  }
+
+  void dispatchBridgeRequest(data as BridgeRequest);
+});
+
+async function dispatchBridgeRequest(request: BridgeRequest) {
+  try {
+    switch (request.method) {
+      case "start": {
+        const onSettled = (result: { ok: boolean; error?: string }) => {
+          respondToBridge({
+            source: BRIDGE_RESPONSE_SOURCE,
+            id: request.id,
+            ok: result.ok,
+            error: result.error,
+            status: currentStatus
+          });
+        };
+
+        const kickoff = startDrip(request.settings, onSettled);
+        if (!kickoff.ok) {
+          // startDrip already called onSettled with the kickoff failure, so we're done.
+        }
+        return;
+      }
+      case "stop": {
+        const result = stopDrip();
+        respondToBridge({
+          source: BRIDGE_RESPONSE_SOURCE,
+          id: request.id,
+          ok: result.ok,
+          status: result.status
+        });
+        return;
+      }
+      case "test": {
+        const onSettled = (result: { ok: boolean; error?: string }) => {
+          respondToBridge({
+            source: BRIDGE_RESPONSE_SOURCE,
+            id: request.id,
+            ok: result.ok,
+            error: result.error,
+            status: currentStatus
+          });
+        };
+        runDiagnostics(onSettled);
+        return;
+      }
+      case "status": {
+        respondToBridge({
+          source: BRIDGE_RESPONSE_SOURCE,
+          id: request.id,
+          ok: true,
+          status: getStatus()
+        });
+        return;
+      }
+    }
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "Bridge request failed.";
+    respondToBridge({
+      source: BRIDGE_RESPONSE_SOURCE,
+      id: request.id,
+      ok: false,
+      error: detail
+    });
+  }
+}
+
+function respondToBridge(response: BridgeResponse) {
+  window.postMessage(response, window.location.origin);
+}
+
+// ---- API mode (enable/disable bridge from storage) ----
+
+function postBridgeControl(control: BridgeControl) {
+  window.postMessage(control, window.location.origin);
+}
+
+function applyApiMode(enabled: boolean) {
+  if (enabled) {
+    postBridgeControl({
+      source: BRIDGE_CONTROL_SOURCE,
+      action: "enable",
+      version: VERSION
+    });
+  } else {
+    postBridgeControl({ source: BRIDGE_CONTROL_SOURCE, action: "disable" });
+  }
+}
+
+void chrome.storage.local
+  .get({ [API_MODE_STORAGE_KEY]: false })
+  .then((result) => {
+    applyApiMode(Boolean(result[API_MODE_STORAGE_KEY]));
+  });
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local") return;
+  const change = changes[API_MODE_STORAGE_KEY];
+  if (!change) return;
+  applyApiMode(Boolean(change.newValue));
+});
