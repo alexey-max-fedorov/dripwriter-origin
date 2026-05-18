@@ -22,6 +22,7 @@ interface RunState {
   cancelled: boolean;
   activeTypingMs: number;
   nextBreakThresholdMs?: number;
+  onSettled?: (result: { ok: boolean; error?: string }) => void;
 }
 
 interface DiagnosticMethod {
@@ -100,33 +101,31 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
 async function handleMessage(message: DripwriterMessage): Promise<DripwriterResponse> {
   if (message.type === "GET_STATUS") {
-    return { ok: true, status: currentStatus };
+    return { ok: true, status: getStatus() };
   }
 
   if (message.type === "STOP_DRIP") {
-    stopRun("Stopped.");
-    return { ok: true, status: currentStatus };
+    const result = stopDrip();
+    return { ok: result.ok, status: result.status };
   }
 
   if (message.type === "RUN_DIAGNOSTICS") {
-    stopRun("Restarting diagnostics...");
-
-    const run: RunState = {
-      cancelled: false,
-      activeTypingMs: 0
-    };
-
-    activeRun = run;
-    acquireWakeLock();
-    setStatus(true, "Running typing diagnostics in 3...");
-
-    void runTypingDiagnostics(run);
-
-    return { ok: true, status: currentStatus };
+    const result = runDiagnostics();
+    return { ok: result.ok, status: result.status };
   }
 
-  if (!message.payload.text.trim()) {
-    setStatus(false, "Add some text in the popup first.");
+  // START_DRIP
+  const result = startDrip(message.payload);
+  return { ok: result.ok, status: result.status, error: result.error };
+}
+
+function startDrip(
+  settings: DripwriterSettings,
+  onSettled?: (result: { ok: boolean; error?: string }) => void
+): { ok: boolean; status: TypingStatus; error?: string } {
+  if (!settings.text.trim()) {
+    setStatus(false, "Add some text first.");
+    onSettled?.({ ok: false, error: currentStatus.detail });
     return { ok: false, status: currentStatus, error: currentStatus.detail };
   }
 
@@ -134,16 +133,46 @@ async function handleMessage(message: DripwriterMessage): Promise<DripwriterResp
 
   const run: RunState = {
     cancelled: false,
-    activeTypingMs: 0
+    activeTypingMs: 0,
+    onSettled
   };
 
   activeRun = run;
   acquireWakeLock();
   setStatus(true, "Starting to type in 3...");
 
-  void runDripwriter(run, normalizeSettings(message.payload));
+  void runDripwriter(run, normalizeSettings(settings));
 
   return { ok: true, status: currentStatus };
+}
+
+function stopDrip(): { ok: boolean; status: TypingStatus } {
+  stopRun("Stopped.");
+  return { ok: true, status: currentStatus };
+}
+
+function runDiagnostics(
+  onSettled?: (result: { ok: boolean; error?: string }) => void
+): { ok: boolean; status: TypingStatus } {
+  stopRun("Restarting diagnostics...");
+
+  const run: RunState = {
+    cancelled: false,
+    activeTypingMs: 0,
+    onSettled
+  };
+
+  activeRun = run;
+  acquireWakeLock();
+  setStatus(true, "Running typing diagnostics in 3...");
+
+  void runTypingDiagnostics(run);
+
+  return { ok: true, status: currentStatus };
+}
+
+function getStatus(): TypingStatus {
+  return currentStatus;
 }
 
 function setStatus(running: boolean, detail: string) {
@@ -176,6 +205,7 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
     await runCountdown(run);
 
     if (run.cancelled || activeRun !== run) {
+      run.onSettled?.({ ok: false, error: "cancelled" });
       return;
     }
 
@@ -185,6 +215,7 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
 
     for (let index = 0; index < text.length; index += 1) {
       if (run.cancelled || activeRun !== run) {
+        run.onSettled?.({ ok: false, error: "cancelled" });
         return;
       }
 
@@ -231,6 +262,7 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
       activeRun = null;
       releaseWakeLock();
       setStatus(false, "Finished typing.");
+      run.onSettled?.({ ok: true });
     }
   } catch (error) {
     if (activeRun === run) {
@@ -240,6 +272,7 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
 
     const detail = error instanceof Error ? error.message : "Typing failed.";
     setStatus(false, detail);
+    run.onSettled?.({ ok: false, error: detail });
   }
 }
 
@@ -249,6 +282,7 @@ async function runTypingDiagnostics(run: RunState) {
 
     for (const method of DIAGNOSTIC_METHODS) {
       if (run.cancelled || activeRun !== run) {
+        run.onSettled?.({ ok: false, error: "cancelled" });
         return;
       }
 
@@ -267,6 +301,7 @@ async function runTypingDiagnostics(run: RunState) {
       activeRun = null;
       releaseWakeLock();
       setStatus(false, "Diagnostics finished. Check which markers appeared in the doc.");
+      run.onSettled?.({ ok: true });
     }
   } catch (error) {
     if (activeRun === run) {
@@ -276,6 +311,7 @@ async function runTypingDiagnostics(run: RunState) {
 
     const detail = error instanceof Error ? error.message : "Diagnostics failed.";
     setStatus(false, detail);
+    run.onSettled?.({ ok: false, error: detail });
   }
 }
 
