@@ -784,10 +784,9 @@ async function dispatchBridgeRequest(request: BridgeRequest) {
           });
         };
 
-        const kickoff = startDrip(request.settings, onSettled);
-        if (!kickoff.ok) {
-          // startDrip already called onSettled with the kickoff failure, so we're done.
-        }
+        // startDrip invokes onSettled exactly once — synchronously on kickoff failure,
+        // or asynchronously when runDripwriter exits. Nothing more to do here.
+        startDrip(request.settings, onSettled);
         return;
       }
       case "stop": {

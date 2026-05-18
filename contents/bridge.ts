@@ -42,6 +42,7 @@ let apiVersion = "0.0.0";
 
 window.addEventListener("message", (event) => {
   if (event.source !== window) return;
+  if (event.origin !== window.location.origin) return;
   const data = event.data;
   if (!data || typeof data !== "object") return;
 

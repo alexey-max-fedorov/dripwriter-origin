@@ -62,7 +62,7 @@ When the popup's **Enable API mode** toggle is on, `contents/bridge.ts` (MAIN-wo
 | File | Role |
 |------|------|
 | `contents/bridge.ts` | MAIN-world content script. Defines `window._dripwriter` with `config`, `start()`, `stop()`, `test()`, `status()`, `version`. |
-| `content.ts` | Isolated content script. Listens for bridge requests via `window.message`; listens for `chrome.storage.onChanged` to enable/disable the bridge. |
+| `content.ts` | Isolated content script. Listens for bridge requests via the `message` event; listens for `chrome.storage.onChanged` to enable/disable the bridge. |
 
 API docs: `meta/api/README.md`, `meta/api/reference.md`.
 
