@@ -38,7 +38,7 @@ Begins a typing run using a **snapshot** of `_dripwriter.config` as it is at the
 
 **Rejects with `Error` when:**
 - `config.text` is empty or whitespace-only — `"Add some text first."`
-- The Google Docs cursor is lost mid-run — `"The Google Docs cursor was lost..."`
+- The Google Docs cursor is lost mid-run — `"The Google Docs cursor was lost. Click back into the document and retry."`
 - The run is cancelled (by `stop()`, by another `start()` call, by API mode being disabled, or by the popup's Stop button) — `"cancelled"`
 - API mode is disabled while the run is pending — `"Dripwriter API mode was disabled."`
 
