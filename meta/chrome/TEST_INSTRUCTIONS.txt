@@ -1,0 +1,8 @@
+1. Open https://docs.google.com/document/create in Chrome.
+2. Click the Dripwriter Origin icon in the toolbar.
+3. Paste or voice dictate text into the popup (voice dictation uses OS accessibility tools, not the extension).
+4. Click inside the document, then click Start.
+5. Confirm text types out character by character at a natural pace.
+6. Click Stop — typing halts immediately.
+7. Adjust sliders, restart — confirm new settings apply.
+8. Reopen popup — confirm settings persisted.
