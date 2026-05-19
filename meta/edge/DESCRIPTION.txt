@@ -1,6 +1,8 @@
 Dripwriter Origin types your text into Google Docs with natural, human-like cadence — variable speed, realistic typos, false starts, and periodic breaks — so your document looks and feels like it was written by hand.
 
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 HOW IT WORKS
 
 Paste your text into the Dripwriter Origin popup. Click where you want typing to begin in your Google Docs document. Press Start. The extension types character by character at a pace you control.
@@ -20,6 +22,8 @@ Diagnostics Mode: Before a long typing session, run the built-in diagnostics to 
 Enable API Mode: For developers and AI assistants, an optional JavaScript API (window._dripwriter) lets external scripts start, stop, and control typing programmatically. Disabled by default; toggle on in the popup when needed.
 
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 WHO IT'S FOR
 
 Accessibility users: People with motor impairments, repetitive strain injury, essential tremor, or other conditions that make sustained typing painful or difficult can prepare their text using voice dictation, AI writing assistants, or other adaptive tools, then let Dripwriter Origin handle the actual keystroke input into Google Docs.
@@ -32,6 +36,8 @@ Professionals with RSI: Anyone managing repetitive strain who needs to minimize 
 
 Developers and AI automation builders: Build pipelines where an AI agent — Claude, ChatGPT, Gemini, or a custom script — drafts content and Dripwriter Origin types it into Google Docs via the window._dripwriter JavaScript API. Full programmatic control over speed, typo simulation, false starts, and breaks, so the output looks genuinely human-written.
 
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 AI INTEGRATION
 
@@ -53,6 +59,8 @@ Full API reference: api.dripwriter.org
 Step-by-step AI setup guide: dripwriter.org/ai
 
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 SETTINGS
 
 Typing Speed: 20 to 150 words per minute (default: 60 wpm)
@@ -67,15 +75,21 @@ Longest Break: 4 to 25 seconds (default: 15 seconds)
 All settings persist automatically. Your configuration is saved locally and restored the next time you open the popup.
 
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 COMPATIBLE WITH
 
 Google Docs documents (docs.google.com/document/*)
 
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 PRIVACY
 
 Dripwriter Origin does not collect any data. Your text never leaves your device. Settings are stored locally using Microsoft Edge's storage API. No analytics. No tracking. No network requests to any external server.
 
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 FREQUENTLY ASKED QUESTIONS
 
@@ -119,6 +133,8 @@ Does it work with Firefox?
 Yes. A Firefox version is available separately.
 
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 PERMISSIONS EXPLAINED
 
 Storage: Saves your settings (speed, variance, typo rate, break timing) and theme preference locally on your device. Nothing is synced or transmitted externally.
@@ -127,6 +143,8 @@ Tabs: Required to identify the active browser tab, confirm it is a Google Docs d
 
 Access to docs.google.com: Required to inject the typing script into Google Docs pages. Without this permission, the extension cannot send keystrokes to your document. The extension does not access any other website.
 
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 OPEN SOURCE
 
