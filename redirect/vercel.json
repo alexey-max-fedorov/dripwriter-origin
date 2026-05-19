@@ -68,6 +68,12 @@
     },
     {
       "source": "/(.*)",
+      "has": [{ "type": "host", "value": "ai.dripwriter.org" }],
+      "destination": "https://dripwriter.org/ai",
+      "statusCode": 301
+    },
+    {
+      "source": "/(.*)",
       "has": [{ "type": "host", "value": "support.dripwriter.org" }],
       "destination": "https://github.com/alexey-max-fedorov/dripwriter-origin/issues/new",
       "statusCode": 301

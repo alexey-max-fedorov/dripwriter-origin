@@ -17,6 +17,8 @@ Natural Breaks: Every 15 to 180 seconds (configurable), the extension pauses for
 
 Diagnostics Mode: Before a long typing session, run the built-in diagnostics to verify the extension can reach your document's active input area.
 
+Enable API Mode: For developers and AI assistants, an optional JavaScript API (window._dripwriter) lets external scripts start, stop, and control typing programmatically. Disabled by default; toggle on in the popup when needed.
+
 
 WHO IT'S FOR
 
@@ -78,6 +80,9 @@ A false start is when a typist begins a word, deletes it, and continues. At your
 
 Does Dripwriter Origin require a Google account or any login?
 No. The extension requires no account, login, or registration. Install and use immediately.
+
+What is Enable API Mode?
+Enable API Mode is an optional toggle for developers and AI agents. When enabled, the extension exposes a window._dripwriter object in the browser console that lets external scripts start, stop, and control the typing session programmatically. It is disabled by default and has no effect on normal use.
 
 Is Dripwriter Origin free?
 Yes, for personal and noncommercial use. Commercial use requires a separate license. See the Dripwriter Origin license for details.

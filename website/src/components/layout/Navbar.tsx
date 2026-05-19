@@ -10,7 +10,8 @@ import { cn } from "@/lib/utils";
 const NAV_LINKS = [
   { label: "Features", href: "/#features" },
   { label: "Install", href: "/#install" },
-{ label: "Support", href: "https://github.com/alexey-max-fedorov/dripwriter-origin/issues", external: true }
+  { label: "Support", href: "https://github.com/alexey-max-fedorov/dripwriter-origin/issues", external: true },
+  { label: "Dripwriter + AI", href: "/ai", gold: true }
 ];
 
 export function Navbar() {
@@ -57,7 +58,11 @@ export function Navbar() {
               key={link.href}
               href={link.href}
               {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              className="text-sm text-[#a0a0a0] hover:text-white tracking-wide transition-colors"
+              className={
+                link.gold
+                  ? "text-sm text-[#c9a84c] hover:text-[#e2c97e] tracking-wide transition-colors font-medium"
+                  : "text-sm text-[#a0a0a0] hover:text-white tracking-wide transition-colors"
+              }
             >
               {link.label}
             </a>
@@ -85,7 +90,11 @@ export function Navbar() {
                 href={link.href}
                 onClick={() => setOpen(false)}
                 {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                className="text-base text-[#a0a0a0] hover:text-white tracking-wide"
+                className={
+                  link.gold
+                    ? "text-base text-[#c9a84c] hover:text-[#e2c97e] tracking-wide font-medium"
+                    : "text-base text-[#a0a0a0] hover:text-white tracking-wide"
+                }
               >
                 {link.label}
               </a>

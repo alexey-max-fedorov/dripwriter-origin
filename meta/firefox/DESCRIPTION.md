@@ -12,6 +12,7 @@ Every detail of the typing rhythm is configurable:
 - **False Starts:** At a configurable rate (0–20%), the extension will begin typing a word, stop, delete it, and continue — the kind of micro-correction that happens naturally when writing.
 - **Natural Breaks:** Every 15 to 180 seconds (configurable), the extension pauses for a short rest — 3 to 25 seconds — mimicking the natural pauses a writer takes to think, re-read, or rest their hands.
 - **Diagnostics Mode:** Before a long typing session, run the built-in diagnostics to verify the extension can reach your document's active input area.
+- **Enable API Mode:** For developers and AI assistants, an optional JavaScript API (window._dripwriter) lets external scripts start, stop, and control typing programmatically. Disabled by default; toggle on in the popup when needed.
 
 
 **WHO IT'S FOR**
@@ -71,6 +72,9 @@ A false start is when a typist begins a word, deletes it, and continues. At your
 
 _Does Dripwriter Origin require a Firefox account or any login?_
 No. The add-on requires no account, login, or registration. Install and use immediately.
+
+_What is Enable API Mode?_
+Enable API Mode is an optional toggle for developers and AI agents. When enabled, the extension exposes a window._dripwriter object in the browser console that lets external scripts start, stop, and control the typing session programmatically. It is disabled by default and has no effect on normal use.
 
 _Is Dripwriter Origin free?_
 Yes, for personal and noncommercial use. Commercial use requires a separate license. See the Dripwriter Origin license for details.
