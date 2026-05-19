@@ -119,3 +119,6 @@ Yes, for personal and noncommercial use. Commercial use requires a separate lice
 **OPEN SOURCE**
 
 Dripwriter Origin is open source. Source code is available on [GitHub](https://github.com/alexey-max-fedorov/dripwriter-origin).
+
+
+Created by Alexey Fedorov.

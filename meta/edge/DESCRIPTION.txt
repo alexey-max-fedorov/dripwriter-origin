@@ -131,3 +131,6 @@ Access to docs.google.com: Required to inject the typing script into Google Docs
 OPEN SOURCE
 
 Dripwriter Origin is open source. Source code is available on GitHub at github.com/alexey-max-fedorov/dripwriter-origin.
+
+
+Created by Alexey Fedorov.
