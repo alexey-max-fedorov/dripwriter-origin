@@ -21,6 +21,29 @@ Every detail of the typing rhythm is configurable:
 - **Students and researchers:** Writers who draft content in one tool and need it entered into Google Docs with natural timing.
 - **Content creators:** Writers who work across multiple platforms and tools, consolidating their writing into Google Docs.
 - **Professionals with RSI:** Anyone managing repetitive strain who needs to minimize keystrokes during a writing session.
+- **Developers and AI automation builders:** Build pipelines where an AI agent — Claude, ChatGPT, Gemini, or a custom script — drafts content and Dripwriter Origin types it into Google Docs via the `window._dripwriter` JavaScript API. Full programmatic control over speed, typo simulation, false starts, and breaks, so the output looks genuinely human-written.
+
+
+**AI INTEGRATION**
+
+When API Mode is enabled in the popup, the extension exposes a `window._dripwriter` object in the browser console. AI agents and automation scripts can use it to control typing without any human interaction.
+
+Available methods:
+
+- `_dripwriter.start()` — begins a typing run using the current config; resolves when the full text has been typed
+- `_dripwriter.stop()` — cancels the active run immediately
+- `_dripwriter.status()` — returns the current run state and progress detail
+- `_dripwriter.test()` — runs the built-in diagnostic check
+
+Set text and options before calling `start()`:
+
+```js
+_dripwriter.config.text = "Your content here";
+_dripwriter.config.wpm = 80;
+```
+
+Full API reference: [api.dripwriter.org](https://api.dripwriter.org)
+Step-by-step AI setup guide: [dripwriter.org/ai](https://dripwriter.org/ai)
 
 
 **SETTINGS**
@@ -74,7 +97,13 @@ _Does Dripwriter Origin require a Firefox account or any login?_
 No. The add-on requires no account, login, or registration. Install and use immediately.
 
 _What is Enable API Mode?_
-Enable API Mode is an optional toggle for developers and AI agents. When enabled, the extension exposes a window._dripwriter object in the browser console that lets external scripts start, stop, and control the typing session programmatically. It is disabled by default and has no effect on normal use.
+Enable API Mode is an optional toggle for developers and AI agents. When enabled, the extension exposes a `window._dripwriter` object in the browser console that lets external scripts start, stop, and control the typing session programmatically. It is disabled by default and has no effect on normal use.
+
+_Can AI agents like Claude or ChatGPT control Dripwriter?_
+Yes. When API Mode is enabled, any AI agent or tool that can execute JavaScript in the browser — including Claude, ChatGPT, Gemini, and custom automation scripts — can call `window._dripwriter.start()`, `stop()`, `status()`, and `test()` to drive the typing session. See [dripwriter.org/ai](https://dripwriter.org/ai) for a step-by-step setup guide.
+
+_Where is the API documentation?_
+Full API reference documentation is available at [api.dripwriter.org](https://api.dripwriter.org). It covers every property and method on `window._dripwriter`, including config fields, error handling patterns, and behavioral details.
 
 _Is Dripwriter Origin free?_
 Yes, for personal and noncommercial use. Commercial use requires a separate license. See the Dripwriter Origin license for details.
