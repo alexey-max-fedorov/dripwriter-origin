@@ -27,3 +27,6 @@ allowBuilds:
   lmdb: true
   msgpackr-extract: true
   sharp: true
+
+minimumReleaseAgeExclude:
+  - '@types/node@25.9.1'
