@@ -1,33 +1,46 @@
 TESTING INSTRUCTIONS — Dripwriter Origin
 
+IMPORTANT — READ FIRST
+This extension types where YOUR CURSOR is in the Google Docs document. You
+MUST click inside the document body first to place the text cursor. Skip this
+and there is no cursor to type into, so nothing appears. This is the #1 reason
+testing looks like it "does nothing."
+
 PREREQUISITES
 - Microsoft Edge with the extension installed
-- A Google account (free)
+- A free Google account
 - A Google Docs document open in Edge
 
 SETUP
-1. Open any Google Docs document: https://docs.google.com/document/create
-2. Click the Dripwriter Origin icon in the Edge toolbar to open the popup.
+1. Open a doc: https://docs.google.com/document/create
+2. Click the Dripwriter Origin toolbar icon to open the popup.
+3. Paste any text (a sentence or two) into the popup text area.
 
 CORE FLOW
-3. Paste any text into the text area in the popup (a sentence or two is enough).
-4. Click inside the Google Docs document where you want typing to begin.
-5. Return to the popup and click Start.
-6. Observe: the extension types the pasted text into the document character by character at a natural, variable pace.
-7. Click Stop at any time to halt typing immediately.
+4. *** REQUIRED *** Click directly inside the Google Docs document body where
+   you want typing to begin. You should see the blinking text cursor. Without
+   this, the extension has no cursor to type into and appears to do nothing.
+5. Click the toolbar icon again to reopen the popup, then click Start.
+6. After a 3-second countdown, the extension types the text character by
+   character at a natural, variable pace.
+7. Click Stop at any time to halt typing.
+
+If nothing types, return to step 4 — the cursor was not placed. Click into the
+document body, reopen the popup, Start.
 
 SETTINGS
-8. Adjust Typing Speed, Typo Rate, or False Start Rate using the sliders.
-9. Click Start again — the new settings take effect.
-10. Close and reopen the popup — confirm settings persisted.
+8. Adjust Typing Speed, Typo Rate, or False Start Rate via the sliders.
+9. Click Start again — new settings take effect. Reopen popup to confirm they
+   persisted.
 
 DIAGNOSTICS
-11. Click the Diagnostics button in the popup with a Google Docs tab active.
-12. Confirm the diagnostic check completes and reports the document input area as reachable.
+10. Click inside the document body, open the popup, click Diagnostics. Confirm
+    it completes and inserts marker text, reporting the input area reachable.
 
 BOUNDARY CHECK
-13. Navigate to a non-Google Docs page (e.g., edge://newtab).
-14. Open the popup — confirm the extension indicates it is inactive or unavailable on this page.
+11. Go to a non-Docs page (e.g. edge://newtab). Open the popup — confirm it
+    indicates it is inactive on this page.
 
 PERMISSIONS
-The extension requests: storage (saves settings locally), tabs (identifies active tab), and access to docs.google.com (injects typing script). No network requests are made to external servers.
+storage (saves settings locally), tabs (identifies active tab), and access to
+docs.google.com (injects typing script). No external network requests.

@@ -1,7 +1,7 @@
 {
   "name": "dripwriter-origin",
   "displayName": "Dripwriter Origin",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Simulates human typing in Google Docs: natural speed, realistic typos, false starts, and breaks.",
   "author": "Alexey Fedorov",
   "private": true,
