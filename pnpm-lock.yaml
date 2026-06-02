@@ -71,11 +71,11 @@ importers:
         specifier: ^25.9.1
         version: 25.9.1
       '@types/react':
-        specifier: ^19.2.15
-        version: 19.2.15
+        specifier: ^19.2.16
+        version: 19.2.16
       '@types/react-dom':
         specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.15)
+        version: 19.2.3(@types/react@19.2.16)
       tailwindcss:
         specifier: ^4.3.0
         version: 4.3.0
@@ -1855,6 +1855,9 @@ packages:
 
   '@types/react@19.2.15':
     resolution: {integrity: sha512-eRwcGNHve+E8qtEQSSRl6urh+rFop4v8gm6O8rGv25CodbvFdLjA1vVQ1KkiFE0w0UPOnb8tDiFKL5lp0rtY5Q==}
+
+  '@types/react@19.2.16':
+    resolution: {integrity: sha512-esJiCAnl0kfpNdE69f3So4WJUXy95dLZydX0KwK46riIHDzHM7O9Vtf9xCHW0PXIqvgqNrswl522kA/5yx+F4w==}
 
   '@types/relateurl@0.2.33':
     resolution: {integrity: sha512-bTQCKsVbIdzLqZhLkF5fcJQreE4y1ro4DIyVrlDNSCJRRwHhB8Z+4zXXa8jN6eDvc2HbRsEYgbvrnGvi54EpSw==}
@@ -5390,7 +5393,15 @@ snapshots:
     dependencies:
       '@types/react': 19.2.15
 
+  '@types/react-dom@19.2.3(@types/react@19.2.16)':
+    dependencies:
+      '@types/react': 19.2.16
+
   '@types/react@19.2.15':
+    dependencies:
+      csstype: 3.2.3
+
+  '@types/react@19.2.16':
     dependencies:
       csstype: 3.2.3
 
