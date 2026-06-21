@@ -20,7 +20,7 @@ Writers, students, content creators, and demo authors who want pre-prepared text
 
 ## Key facts
 
-- Version: 0.2.0
+- Version: 2.1.1
 - License: Dripwriter Origin License (Deskview-style noncommercial; commercial requires separate license)
 - Price: Free for noncommercial use
 - Supported browsers: Chrome, Microsoft Edge, Firefox
@@ -33,3 +33,5 @@ Writers, students, content creators, and demo authors who want pre-prepared text
 
 - Homepage: https://dripwriter.org
 - Get the extension: https://extension.dripwriter.org
+- AI integration guide: https://dripwriter.org/ai
+- Console API reference: https://dripwriter.org/api
