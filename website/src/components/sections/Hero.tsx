@@ -58,9 +58,10 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-[#a0a0a0] text-base sm:text-lg leading-relaxed mb-10"
           >
-            Dripwriter Origin pastes your text into a Google Doc one believable
-            keystroke at a time — with adjustable speed, keyboard-neighbor typos
-            that auto-correct, false-start words, and short breaks.
+            Dripwriter is a free browser extension that pastes your text into a
+            Google Doc one believable keystroke at a time — with adjustable
+            speed, keyboard-neighbor typos that auto-correct, false-start words,
+            and short breaks.
           </motion.p>
 
           <motion.div
