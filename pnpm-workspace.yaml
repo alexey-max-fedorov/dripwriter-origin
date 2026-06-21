@@ -30,3 +30,4 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - '@types/node@25.9.1'
+  - 'nanoid@3.3.14'
