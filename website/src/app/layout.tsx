@@ -32,9 +32,6 @@ export const metadata: Metadata = {
       "Type pasted text into Google Docs with realistic typos, deleted false starts, and short breaks.",
     url: "https://dripwriter.org",
     siteName: "Dripwriter Origin",
-    // TODO: replace with a dedicated 1200x630 OG card at /og-image.png before launch.
-    // /logo.png is 512x512 — social platforms will letterbox or center-crop it.
-    images: [{ url: "/logo.png", width: 512, height: 512, alt: "Dripwriter Origin logo" }],
     locale: "en_US",
     type: "website"
   },
@@ -42,8 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Dripwriter Origin",
     description:
-      "Type into Google Docs like a human — typos, false starts, breaks. Free, open-source, cross-browser.",
-    images: [{ url: "/logo.png", width: 512, height: 512, alt: "Dripwriter Origin logo" }]
+      "Type into Google Docs like a human — typos, false starts, breaks. Free, open-source, cross-browser."
   },
   robots: {
     index: true,
