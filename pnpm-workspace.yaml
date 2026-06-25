@@ -30,3 +30,6 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - '@types/node@25.9.1'
+  - '@types/node@26.0.1'
+  - framer-motion@12.42.0
+  - motion-dom@12.42.0
