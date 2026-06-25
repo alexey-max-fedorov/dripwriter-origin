@@ -28,12 +28,12 @@ jobs:
         version: 9
 
     - name: Update extension dependencies
-      run: pnpm update
+      run: pnpm update --latest
 
     - name: Update website dependencies
       run: |
         cd ./website/
-        pnpm update
+        pnpm update --latest
 
     - name: Commit with git
       run: |
