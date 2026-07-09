@@ -35,6 +35,18 @@ jobs:
         cd ./website/
         pnpm update --latest
 
+    - name: Verify extension still builds
+      run: |
+        pnpm install
+        pnpm run typecheck
+        pnpm run build
+
+    - name: Verify website still builds
+      run: |
+        cd ./website/
+        pnpm install
+        pnpm run build
+
     - name: Commit with git
       run: |
         git pull
