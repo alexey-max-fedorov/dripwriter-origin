@@ -10,6 +10,13 @@ updates:
       prefix: "[extension]"
     assignees:
       - "alexey-max-fedorov"
+    ignore:
+      # TypeScript 7 is an ESM-only rewrite that dropped the classic
+      # lib/typescript.js CJS entry Next.js 16 requires, which breaks
+      # Vercel's build (see commit ff02942). Stay on the 6.x line until
+      # Next.js/Vercel support TS 7.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # website
   - package-ecosystem: "npm"
@@ -20,6 +27,9 @@ updates:
       prefix: "[website]"
     assignees:
       - "alexey-max-fedorov"
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions
   - package-ecosystem: "github-actions"

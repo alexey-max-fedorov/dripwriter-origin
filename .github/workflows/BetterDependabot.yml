@@ -28,12 +28,18 @@ jobs:
         version: 9
 
     - name: Update extension dependencies
-      run: pnpm update --latest
+      run: |
+        pnpm update --latest
+        # TypeScript 7 is an ESM-only rewrite that dropped the classic
+        # lib/typescript.js CJS entry Next.js 16 / Vercel's builder require,
+        # so it must stay pinned to the 6.x line regardless of --latest.
+        pnpm add -D typescript@^6
 
     - name: Update website dependencies
       run: |
         cd ./website/
         pnpm update --latest
+        pnpm add -D typescript@^6
 
     - name: Verify extension still builds
       run: |
