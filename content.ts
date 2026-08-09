@@ -20,6 +20,15 @@ import {
   type TypingStatus
 } from "./types";
 import { VERSION } from "~/lib/version";
+import {
+  buildCaretSignature,
+  cascadeUntilVerified,
+  DELETE_REJECTED_MESSAGE,
+  DOCS_REJECTED_MESSAGE,
+  DOCS_STOPPED_MESSAGE,
+  type MutationMethod,
+  waitForChange
+} from "~/lib/insertion";
 
 interface DocsTarget {
   doc: Document;
@@ -31,7 +40,22 @@ interface RunState {
   activeTypingMs: number;
   nextBreakThresholdMs?: number;
   onSettled?: (result: { ok: boolean; error?: string }) => void;
+  /**
+   * Insertion method that Docs has been observed to accept in THIS session.
+   * Docs serves different editor builds per user, and each build accepts a
+   * different subset of synthetic events — so the working method is discovered
+   * at runtime on the first character rather than assumed.
+   */
+  textMethod?: DocsMethod;
+  /** Whitespace is accepted by a different set of methods than printable chars. */
+  spaceMethod?: DocsMethod;
+  /** Deletion is accepted by a different set of methods again. */
+  deleteMethod?: DocsMethod;
+  /** False until we have proven, via the DOM, that a character actually landed. */
+  provenWriteable?: boolean;
 }
+
+type DocsMethod = MutationMethod<DocsTarget>;
 
 interface DiagnosticMethod {
   label: string;
@@ -183,8 +207,8 @@ function getStatus(): TypingStatus {
   return currentStatus;
 }
 
-function setStatus(running: boolean, detail: string) {
-  currentStatus = { running, detail };
+function setStatus(running: boolean, detail: string, failed = false) {
+  currentStatus = { running, detail, failed };
 }
 
 function acquireWakeLock() {
@@ -217,7 +241,9 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
       return;
     }
 
-    setStatus(true, "Typing...");
+    // Stays "Checking..." until a character is PROVEN to have landed, so a
+    // document that rejects our input never shows a fake progress percentage.
+    setStatus(true, "Checking Google Docs...");
 
     const text = settings.text.replace(/\r\n/g, "\n");
 
@@ -279,7 +305,7 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
     }
 
     const detail = error instanceof Error ? error.message : "Typing failed.";
-    setStatus(false, detail);
+    setStatus(false, detail, true);
     run.onSettled?.({ ok: false, error: detail });
   }
 }
@@ -468,6 +494,118 @@ async function typeLiteral(
   }
 }
 
+/**
+ * Insertion methods, ordered most- to least-likely to be honoured.
+ *
+ * None of these can be trusted to report success: `execCommand` returns false on
+ * Docs' editing host, and dispatchEvent returns true for "an event was
+ * dispatched", not "text was inserted". Every attempt is therefore verified
+ * against the DOM by `didCaretAdvance`.
+ */
+const INSERT_METHODS: DocsMethod[] = [
+  // Measured: Docs applies this synchronously (caret moves before the call
+  // returns) and it is the only method that handles lone whitespace, so it is
+  // tried first — when it works, verification costs nothing.
+  {
+    label: "beforeinput",
+    apply: (target, text) => void dispatchInsertEvents(target.element, text, "insertText")
+  },
+  // Measured: applied asynchronously (~30ms) and silently no-ops on a lone
+  // space, but works on Docs builds that ignore beforeinput entirely.
+  {
+    label: "paste",
+    apply: (target, text) => void dispatchDocsPaste(target.element, text)
+  },
+  {
+    label: "paste-bubbling",
+    apply: (target, text) =>
+      void dispatchDocsPaste(target.element, text, { bubbles: true, cancelable: true })
+  },
+  // Last resort for whitespace on builds where neither of the above take it.
+  {
+    label: "keyboard",
+    apply: (target, text) => void dispatchKeyboardTyping(target.element, text)
+  },
+  // Returns false on Docs' editing host in current Chrome; kept as a backstop
+  // for older builds only.
+  {
+    label: "execCommand",
+    apply: (target, text) => void tryExecInsert(target.doc, text)
+  }
+];
+
+/**
+ * Deletion is a separate capability from insertion: Docs honours a synthetic
+ * keydown Backspace but ignores a bare `beforeinput` with deleteContentBackward,
+ * so a build can accept our text and still refuse our corrections.
+ */
+const DELETE_METHODS: DocsMethod[] = [
+  {
+    label: "backspace-key",
+    apply: (target) => void dispatchBackspace(target.element)
+  },
+  {
+    label: "execCommand-delete",
+    apply: (target) => void tryExecDelete(target.doc)
+  }
+];
+
+/**
+ * The document text is painted to a <canvas>, so inserted characters never appear
+ * in the DOM and cannot be counted there. The caret, however, IS a DOM element —
+ * and it advances only when Docs actually applies an edit. That makes it the one
+ * reliable proof-of-insertion signal in canvas-rendered Docs.
+ *
+ * Only the local caret blinks, which is what distinguishes it from collaborator
+ * carets in a shared document.
+ */
+const LOCAL_CARET_CLASS = "docs-text-ui-cursor-blink";
+
+function getCaretSignature(): string {
+  return buildCaretSignature(
+    Array.from(document.querySelectorAll<HTMLElement>(".kix-cursor")).map((caret) => ({
+      isLocal: caret.classList.contains(LOCAL_CARET_CLASS),
+      transform: window.getComputedStyle(caret).transform
+    }))
+  );
+}
+
+/**
+ * Resolves true as soon as the caret moves, false if it never does.
+ *
+ * Deliberately NOT requestAnimationFrame-based: rAF does not fire in a
+ * backgrounded tab, and this extension holds a wake lock precisely so it can
+ * keep typing while the tab is in the background.
+ *
+ * The synchronous first check matters — `beforeinput` moves the caret before
+ * dispatch returns, so the common path never waits on a timer at all.
+ */
+async function didCaretAdvance(before: string, timeoutMs = 400): Promise<boolean> {
+  return waitForChange({
+    read: getCaretSignature,
+    before,
+    timeoutMs,
+    now: () => performance.now(),
+    sleep: (ms) =>
+      new Promise<void>((resolve) => {
+        window.setTimeout(resolve, ms);
+      })
+  });
+}
+
+/** Applies a method, then resolves true only if the caret actually moved. */
+async function attemptMutation(method: DocsMethod, target: DocsTarget, text: string) {
+  const before = getCaretSignature();
+
+  try {
+    method.apply(target, text);
+  } catch {
+    return false;
+  }
+
+  return didCaretAdvance(before);
+}
+
 async function insertText(run: RunState, text: string) {
   const target = ensureEditorTarget(run);
 
@@ -475,12 +613,33 @@ async function insertText(run: RunState, text: string) {
     throw new Error("The Google Docs cursor was lost. Click back into the document and retry.");
   }
 
-  if (tryExecInsert(target.doc, text)) {
-    return;
+  const isWhitespace = /^\s+$/.test(text);
+  const locked = isWhitespace ? run.spaceMethod : run.textMethod;
+
+  const winner = await cascadeUntilVerified({
+    methods: INSERT_METHODS,
+    locked,
+    target,
+    text,
+    attempt: attemptMutation
+  });
+
+  // Nothing works. Fail loudly rather than reporting a run that wrote nothing.
+  if (!winner) {
+    throw new Error(run.provenWriteable ? DOCS_STOPPED_MESSAGE : DOCS_REJECTED_MESSAGE);
   }
 
-  // execCommand failed (deprecated/unsupported); fall back to synthetic input events
-  dispatchInsertEvents(target.element, text, "insertText");
+  if (isWhitespace) {
+    run.spaceMethod = winner;
+  } else {
+    run.textMethod = winner;
+  }
+
+  // Only now is it honest to show typing progress: a character has provably landed.
+  if (!run.provenWriteable) {
+    run.provenWriteable = true;
+    setStatus(true, "Typing...");
+  }
 }
 
 async function deleteBackward(run: RunState, count: number) {
@@ -495,17 +654,22 @@ async function deleteBackward(run: RunState, count: number) {
       throw new Error("The Google Docs cursor was lost while deleting.");
     }
 
-    if (dispatchBackspace(target.element)) {
-      await wait(run, randomBetween(35, 85), true);
-      continue;
+    // Same trap as insertion: dispatchBackspace returns true for "an event was
+    // dispatched". An unverified delete leaves injected typos in the document.
+    const winner = await cascadeUntilVerified({
+      methods: DELETE_METHODS,
+      locked: run.deleteMethod,
+      target,
+      text: "",
+      attempt: attemptMutation
+    });
+
+    if (!winner) {
+      throw new Error(DELETE_REJECTED_MESSAGE);
     }
 
-    if (tryExecDelete(target.doc)) {
-      await wait(run, randomBetween(35, 85), true);
-      continue;
-    }
-
-    throw new Error("Unable to delete text in Google Docs.");
+    run.deleteMethod = winner;
+    await wait(run, randomBetween(35, 85), true);
   }
 }
 

@@ -2,12 +2,31 @@
   "extends": "plasmo/templates/tsconfig.base",
   "compilerOptions": {
     "ignoreDeprecations": "6.0",
-    "types": ["chrome", "node", "react", "react-dom"],
+    "types": [
+      "chrome",
+      "node",
+      "react",
+      "react-dom"
+    ],
     "paths": {
-      "~*": ["./*"]
+      "~*": [
+        "./*"
+      ]
     },
-    "baseUrl": "."
+    "baseUrl": ".",
+    "allowImportingTsExtensions": true
   },
-  "include": [".plasmo/index.d.ts", "./**/*.ts", "./**/*.tsx"],
-  "exclude": ["node_modules", "build", "website", "meta", ".claude", "redirect"]
+  "include": [
+    ".plasmo/index.d.ts",
+    "./**/*.ts",
+    "./**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "website",
+    "meta",
+    ".claude",
+    "redirect"
+  ]
 }

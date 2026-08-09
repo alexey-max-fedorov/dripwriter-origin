@@ -5,13 +5,23 @@ import {
   DEFAULT_SETTINGS,
   type DripwriterMessage,
   type DripwriterResponse,
-  type DripwriterSettings
+  type DripwriterSettings,
+  type TypingStatus
 } from "./types";
 import { VERSION_TAG } from "~/lib/version";
 
 import "./popup.css";
 
 type StatusState = "idle" | "running" | "error" | "done";
+
+/**
+ * A run that Google Docs rejected must read as an error, not as a quiet "done" —
+ * otherwise a document that accepted nothing looks identical to a successful run.
+ */
+function stateForStatus(status: TypingStatus, settled: StatusState): StatusState {
+  if (status.failed) return "error";
+  return status.running ? "running" : settled;
+}
 
 const TITLE = "Dripwriter Origin";
 const TITLE_SPLIT = 10;
@@ -172,7 +182,7 @@ function PopupView() {
     const response = await sendToActiveDoc({ type: "GET_STATUS" });
     if (!response) return;
     setStatusDetail(response.status.detail);
-    setStatusState(response.status.running ? "running" : "idle");
+    setStatusState(stateForStatus(response.status, "idle"));
   }, [sendToActiveDoc]);
 
   const onStart = useCallback(
@@ -195,7 +205,7 @@ function PopupView() {
       if (!response) return;
 
       setStatusDetail(response.status.detail);
-      setStatusState(response.status.running ? "running" : "done");
+      setStatusState(stateForStatus(response.status, "done"));
 
       if (response.ok) {
         window.close();
@@ -219,7 +229,7 @@ function PopupView() {
     const response = await sendToActiveDoc({ type: "RUN_DIAGNOSTICS" });
     if (!response) return;
     setStatusDetail(response.status.detail);
-    setStatusState(response.status.running ? "running" : "done");
+    setStatusState(stateForStatus(response.status, "done"));
     if (response.ok) window.close();
   }, [sendToActiveDoc]);
 

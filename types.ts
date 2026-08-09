@@ -13,6 +13,8 @@ export interface DripwriterSettings {
 export interface TypingStatus {
   running: boolean;
   detail: string;
+  /** Set when a run ended because Google Docs rejected the text we tried to insert. */
+  failed?: boolean;
 }
 
 export type DripwriterMessage =
