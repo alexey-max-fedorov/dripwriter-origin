@@ -35,6 +35,29 @@ export const DELETE_REJECTED_MESSAGE =
   "click back into the document and press Start again.";
 
 /**
+ * Builds the text to pair with a lone whitespace character that Docs rejected.
+ *
+ * Some Docs builds ignore `beforeinput` entirely and only apply synthetic paste
+ * events — and a paste whose content is whitespace-only is silently dropped
+ * (nothing is inserted, the caret does not move). The one thing such a build
+ * reliably applies is paste of non-whitespace content, so the whitespace must
+ * ride along with the next printable character: `" "` + `"world"` → `" w"`.
+ *
+ * Returns the suffix to append to the whitespace (whitespace run + first
+ * non-whitespace character), or null when there is no non-whitespace character
+ * ahead (trailing whitespace) or the whitespace run is impractically long.
+ */
+export function buildWhitespacePairSuffix(remaining: string, maxLength = 8): string | null {
+  const match = /^(\s*\S)/.exec(remaining);
+  if (!match) {
+    return null;
+  }
+
+  const suffix = match[1];
+  return suffix.length <= maxLength ? suffix : null;
+}
+
+/**
  * Builds a comparable snapshot of caret position.
  *
  * Only the local caret blinks; collaborator carets in a shared document do not.
