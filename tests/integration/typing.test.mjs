@@ -137,6 +137,32 @@ describe("typing against a live Google Doc", { concurrency: 1 }, () => {
     assert.equal(status.detail, "Finished typing.");
   });
 
+  it("finishes a run that ends in whitespace on a paste-only build", async (t) => {
+    if (unavailable) return t.skip(unavailable);
+    if (!realms.some((realm) => realm.href === "about:blank")) {
+      return t.skip("the about:blank texteventtarget realm was not found");
+    }
+
+    // A trailing space has no following character to pair with, and pasting
+    // whitespace alone is a no-op on this build — the run used to abort with
+    // DOCS_STOPPED_MESSAGE even though every prior character landed fine.
+    await installPasteOnlyBlocker(page, realms);
+    const baseline = await countSwallowed(page, realms);
+
+    await startTyping(worker, {
+      ...FAST_SETTINGS,
+      wpm: 120,
+      text: "\ntrailing space check "
+    });
+    const status = JSON.parse(await awaitSettled(worker, 40));
+
+    const swallowed = (await countSwallowed(page, realms)) - baseline;
+    assert.ok(swallowed > 0, "paste-only blocker did not hold");
+
+    assert.equal(status.failed, false);
+    assert.equal(status.detail, "Finished typing.");
+  });
+
   it("types spaces via the keyCode-based keydown channel", async (t) => {
     if (unavailable) return t.skip(unavailable);
     if (!realms.some((realm) => realm.href === "about:blank")) {

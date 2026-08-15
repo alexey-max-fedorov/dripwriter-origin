@@ -660,6 +660,11 @@ async function insertText(run: RunState, text: string, remainingAfter?: string):
   // caller skip the characters that landed with it. The pair is text-shaped
   // content, so the method already proven for text on this build is tried first.
   if (!winner && isWhitespace && remainingAfter !== undefined) {
+    // The direct cascade above just failed for whitespace, independent of
+    // whether pairing succeeds below — no need to keep re-attempting it (and
+    // eating its ~2s of failed verification) for the rest of this run.
+    run.whitespaceNeedsPairing = true;
+
     const suffix = buildWhitespacePairSuffix(remainingAfter);
 
     if (suffix !== null) {
@@ -673,13 +678,21 @@ async function insertText(run: RunState, text: string, remainingAfter?: string):
 
       if (winner) {
         consumed = suffix.length;
-        run.whitespaceNeedsPairing = true;
       }
     }
   }
 
-  // Nothing works. Fail loudly rather than reporting a run that wrote nothing.
+  // Nothing works. If this is a lone whitespace character that simply had no
+  // non-whitespace character to pair with — trailing whitespace, or a
+  // whitespace run longer than buildWhitespacePairSuffix's maxLength — on a
+  // build that's already proven it accepts our writes, skip it instead of
+  // aborting the run: Docs is fine, this one character just isn't
+  // representable on this build.
   if (!winner) {
+    if (isWhitespace && run.provenWriteable) {
+      return consumed;
+    }
+
     throw new Error(run.provenWriteable ? DOCS_STOPPED_MESSAGE : DOCS_REJECTED_MESSAGE);
   }
 
