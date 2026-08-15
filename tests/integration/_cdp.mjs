@@ -129,6 +129,71 @@ const UNBLOCKER = `(() => {
 })()`;
 
 /**
+ * Simulates a Docs build that ignores every key/input path and only applies
+ * synthetic paste events — the build where typing used to stop after the first
+ * word, because a lone-space paste is dropped while letter pastes land.
+ * Replaces any prior blocker so tests can switch modes mid-suite.
+ */
+const PASTE_ONLY_BLOCKER = `(() => {
+  if (window.__dwBlock) {
+    EventTarget.prototype.dispatchEvent = window.__dwBlock.original;
+    delete window.__dwBlock;
+  }
+  const original = EventTarget.prototype.dispatchEvent;
+  window.__dwBlock = { swallowed: 0, original };
+  EventTarget.prototype.dispatchEvent = function (event) {
+    if (['beforeinput','input','keydown','keypress','keyup'].includes(event.type)) {
+      window.__dwBlock.swallowed++;
+      return true;   // "dispatched fine" — but only paste events reach Docs
+    }
+    return original.call(this, event);
+  };
+  return "blocking";
+})()`;
+
+/**
+ * Like installBlocker, but lets paste events through so only pasted content
+ * lands — see PASTE_ONLY_BLOCKER.
+ */
+export async function installPasteOnlyBlocker(page, realms) {
+  for (const realm of realms) {
+    await evaluate(page, PASTE_ONLY_BLOCKER, realm.id);
+  }
+}
+
+/**
+ * Simulates the Docs build that served the "spaces vanish" report: beforeinput,
+ * input and paste are swallowed, so the only channel left is the legacy
+ * keyCode-based keydown pipeline (the same one that honors Backspace).
+ */
+const KEYBOARD_ONLY_BLOCKER = `(() => {
+  if (window.__dwBlock) {
+    EventTarget.prototype.dispatchEvent = window.__dwBlock.original;
+    delete window.__dwBlock;
+  }
+  const original = EventTarget.prototype.dispatchEvent;
+  window.__dwBlock = { swallowed: 0, original };
+  EventTarget.prototype.dispatchEvent = function (event) {
+    if (['beforeinput','input','paste'].includes(event.type)) {
+      window.__dwBlock.swallowed++;
+      return true;   // "dispatched fine" — but only key events reach Docs
+    }
+    return original.call(this, event);
+  };
+  return "blocking";
+})()`;
+
+/**
+ * Like installBlocker, but lets keydown/keypress/keyup through so only the
+ * keyboard channel lands — see KEYBOARD_ONLY_BLOCKER.
+ */
+export async function installKeyboardOnlyBlocker(page, realms) {
+  for (const realm of realms) {
+    await evaluate(page, KEYBOARD_ONLY_BLOCKER, realm.id);
+  }
+}
+
+/**
  * Simulates a Google Docs build that rejects every insertion method, by swallowing
  * editing events inside the extension's own realms. `execCommand("insertText")`
  * already returns false on Docs' editing host, so no patch is needed for it.

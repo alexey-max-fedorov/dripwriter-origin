@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import {
   buildCaretSignature,
+  buildWhitespacePairSuffix,
   cascadeUntilVerified,
   type MutationMethod,
   waitForChange
@@ -129,6 +130,35 @@ describe("waitForChange", () => {
 
     assert.equal(clock.now(), 100);
     assert.equal(clock.sleeps.length, 10);
+  });
+});
+
+describe("buildWhitespacePairSuffix", () => {
+  it("pairs a space with the first character of the next word", () => {
+    assert.equal(buildWhitespacePairSuffix("world"), "w");
+  });
+
+  it("includes leading whitespace so the paste is never whitespace-only", () => {
+    // Space before a newline before the next word: the pair carries the whole
+    // run plus the first printable character.
+    assert.equal(buildWhitespacePairSuffix("\nworld"), "\nw");
+    assert.equal(buildWhitespacePairSuffix("  x"), "  x");
+  });
+
+  it("returns null when nothing printable remains (trailing whitespace)", () => {
+    assert.equal(buildWhitespacePairSuffix(""), null);
+    assert.equal(buildWhitespacePairSuffix("   "), null);
+    assert.equal(buildWhitespacePairSuffix("\n\n"), null);
+  });
+
+  it("returns null when the whitespace run is impractically long", () => {
+    assert.equal(buildWhitespacePairSuffix("          x", 8), null);
+    assert.equal(buildWhitespacePairSuffix("x"), "x");
+  });
+
+  it("never exceeds the max length", () => {
+    const suffix = buildWhitespacePairSuffix("   x", 8);
+    assert.ok(suffix !== null && suffix.length <= 8);
   });
 });
 

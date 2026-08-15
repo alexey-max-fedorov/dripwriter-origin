@@ -22,6 +22,7 @@ import {
 import { VERSION } from "~/lib/version";
 import {
   buildCaretSignature,
+  buildWhitespacePairSuffix,
   cascadeUntilVerified,
   DELETE_REJECTED_MESSAGE,
   DOCS_REJECTED_MESSAGE,
@@ -53,6 +54,12 @@ interface RunState {
   deleteMethod?: DocsMethod;
   /** False until we have proven, via the DOM, that a character actually landed. */
   provenWriteable?: boolean;
+  /**
+   * Set once this build rejected lone whitespace via every single-character
+   * method (it ignores beforeinput and paste drops whitespace-only content).
+   * From then on whitespace is pasted together with the following character.
+   */
+  whitespaceNeedsPairing?: boolean;
 }
 
 type DocsMethod = MutationMethod<DocsTarget>;
@@ -283,8 +290,12 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
         }
       }
 
-      await insertText(run, char);
+      const consumed = await insertText(run, char, text.slice(index + 1));
       await wait(run, charDelay(char, settings), true);
+
+      // On builds that reject lone whitespace it was pasted together with the
+      // following character(s), which already landed — skip them.
+      index += consumed;
 
       if (index > 0 && index % 30 === 0) {
         const progress = Math.round((index / text.length) * 100);
@@ -521,7 +532,10 @@ const INSERT_METHODS: DocsMethod[] = [
     apply: (target, text) =>
       void dispatchDocsPaste(target.element, text, { bubbles: true, cancelable: true })
   },
-  // Last resort for whitespace on builds where neither of the above take it.
+  // The builds that ignore beforeinput run a legacy keyCode-based keydown
+  // pipeline (the same channel that honors Backspace). Synthetic keydowns with a
+  // real keyCode handle lone whitespace there, where paste drops it. Falls back
+  // to the paired-whitespace path when even this is ignored.
   {
     label: "keyboard",
     apply: (target, text) => void dispatchKeyboardTyping(target.element, text)
@@ -606,7 +620,15 @@ async function attemptMutation(method: DocsMethod, target: DocsTarget, text: str
   return didCaretAdvance(before);
 }
 
-async function insertText(run: RunState, text: string) {
+/**
+ * Inserts a single character (or, for whitespace, possibly whitespace plus the
+ * next character) and verifies it landed.
+ *
+ * @returns the number of FOLLOWING characters that were consumed along with the
+ *   whitespace (they already landed in the document), so the caller can skip
+ *   them; 0 when only `text` was inserted.
+ */
+async function insertText(run: RunState, text: string, remainingAfter?: string): Promise<number> {
   const target = ensureEditorTarget(run);
 
   if (!target) {
@@ -616,22 +638,57 @@ async function insertText(run: RunState, text: string) {
   const isWhitespace = /^\s+$/.test(text);
   const locked = isWhitespace ? run.spaceMethod : run.textMethod;
 
-  const winner = await cascadeUntilVerified({
-    methods: INSERT_METHODS,
-    locked,
-    target,
-    text,
-    attempt: attemptMutation
-  });
+  // Once this build has proven it only accepts whitespace paired with text, the
+  // single-character cascade is a known dead end — skip it to avoid 2s of failed
+  // verification per space.
+  let winner: DocsMethod | null = null;
+  let consumed = 0;
+
+  if (!(isWhitespace && run.whitespaceNeedsPairing)) {
+    winner = await cascadeUntilVerified({
+      methods: INSERT_METHODS,
+      locked,
+      target,
+      text,
+      attempt: attemptMutation
+    });
+  }
+
+  // Lone whitespace is rejected on builds that ignore beforeinput: paste drops
+  // whitespace-only content and nothing else applies. Paste it together with the
+  // following text instead — non-whitespace content is applied — and let the
+  // caller skip the characters that landed with it. The pair is text-shaped
+  // content, so the method already proven for text on this build is tried first.
+  if (!winner && isWhitespace && remainingAfter !== undefined) {
+    const suffix = buildWhitespacePairSuffix(remainingAfter);
+
+    if (suffix !== null) {
+      winner = await cascadeUntilVerified({
+        methods: INSERT_METHODS,
+        locked: run.textMethod,
+        target,
+        text: text + suffix,
+        attempt: attemptMutation
+      });
+
+      if (winner) {
+        consumed = suffix.length;
+        run.whitespaceNeedsPairing = true;
+      }
+    }
+  }
 
   // Nothing works. Fail loudly rather than reporting a run that wrote nothing.
   if (!winner) {
     throw new Error(run.provenWriteable ? DOCS_STOPPED_MESSAGE : DOCS_REJECTED_MESSAGE);
   }
 
-  if (isWhitespace) {
+  // A paired paste is a text-shaped insert (contains a printable character) and
+  // says nothing about how this build handles a LONE space, so it must not be
+  // cached as spaceMethod.
+  if (isWhitespace && consumed === 0) {
     run.spaceMethod = winner;
-  } else {
+  } else if (!isWhitespace) {
     run.textMethod = winner;
   }
 
@@ -640,6 +697,8 @@ async function insertText(run: RunState, text: string) {
     run.provenWriteable = true;
     setStatus(true, "Typing...");
   }
+
+  return consumed;
 }
 
 async function deleteBackward(run: RunState, count: number) {
@@ -851,9 +910,25 @@ function dispatchKeyboardTyping(element: HTMLElement | null, text: string) {
 
     for (const char of text) {
       const code = /^[A-Z]$/.test(char) ? `Key${char}` : char === " " ? "Space" : "";
+      // Docs' keydown pipeline is legacy (keyCode-based) on the builds that
+      // ignore beforeinput: a synthetic event whose keyCode reads 0 is dropped.
+      // The same channel is already proven to work for Backspace (keyCode 8,
+      // see dispatchBackspace), so insertion keys carry their keyCode too.
+      const keyCode = char.length === 1 ? char.charCodeAt(0) : 0;
 
-      element.dispatchEvent(new KeyboardEvent("keydown", { key: char, code, bubbles: true }));
-      element.dispatchEvent(new KeyboardEvent("keypress", { key: char, code, bubbles: true }));
+      element.dispatchEvent(
+        new KeyboardEvent("keydown", { key: char, code, keyCode, which: keyCode, bubbles: true })
+      );
+      element.dispatchEvent(
+        new KeyboardEvent("keypress", {
+          key: char,
+          code,
+          keyCode,
+          which: keyCode,
+          charCode: keyCode,
+          bubbles: true
+        })
+      );
       element.dispatchEvent(
         new InputEvent("beforeinput", {
           bubbles: true,
@@ -869,7 +944,9 @@ function dispatchKeyboardTyping(element: HTMLElement | null, text: string) {
           inputType: "insertText"
         })
       );
-      element.dispatchEvent(new KeyboardEvent("keyup", { key: char, code, bubbles: true }));
+      element.dispatchEvent(
+        new KeyboardEvent("keyup", { key: char, code, keyCode, which: keyCode, bubbles: true })
+      );
     }
 
     return true;

@@ -10,11 +10,14 @@ import {
   awaitSettled,
   caretSignature,
   connect,
+  countSwallowed,
   FAST_SETTINGS,
   ensureRealms,
   findTargets,
   getStatus,
   installBlocker,
+  installKeyboardOnlyBlocker,
+  installPasteOnlyBlocker,
   removeBlocker,
   startTyping,
   wait,
@@ -105,5 +108,58 @@ describe("typing against a live Google Doc", { concurrency: 1 }, () => {
     assert.equal(status.failed, true);
     assert.match(status.detail, /stopped accepting/i);
     assert.doesNotMatch(status.detail, /Finished typing/i);
+  });
+
+  it("types across word boundaries on a build that only accepts paste", async (t) => {
+    if (unavailable) return t.skip(unavailable);
+    if (!realms.some((realm) => realm.href === "about:blank")) {
+      return t.skip("the about:blank texteventtarget realm was not found");
+    }
+
+    // Swallow beforeinput/input/keyboard so only paste reaches Docs — the build
+    // where lone spaces are dropped and the run used to die at the first space.
+    await installPasteOnlyBlocker(page, realms);
+    const baseline = await countSwallowed(page, realms);
+
+    await startTyping(worker, {
+      ...FAST_SETTINGS,
+      wpm: 120,
+      text: "\none two three four five."
+    });
+    const status = JSON.parse(await awaitSettled(worker, 40));
+
+    const swallowed = (await countSwallowed(page, realms)) - baseline;
+    assert.ok(swallowed > 0, "paste-only blocker did not hold");
+
+    // Letters land via paste; every space must be paired with the next character
+    // instead of aborting the run at the first word boundary.
+    assert.equal(status.failed, false);
+    assert.equal(status.detail, "Finished typing.");
+  });
+
+  it("types spaces via the keyCode-based keydown channel", async (t) => {
+    if (unavailable) return t.skip(unavailable);
+    if (!realms.some((realm) => realm.href === "about:blank")) {
+      return t.skip("the about:blank texteventtarget realm was not found");
+    }
+
+    // Swallow beforeinput/input/paste so only keydown/keypress/keyup reach Docs:
+    // the build where pasted whitespace is dropped and lone spaces must come
+    // through the same keyCode pipeline that already handles Backspace.
+    await installKeyboardOnlyBlocker(page, realms);
+    const baseline = await countSwallowed(page, realms);
+
+    await startTyping(worker, {
+      ...FAST_SETTINGS,
+      wpm: 120,
+      text: "\nkey one two three."
+    });
+    const status = JSON.parse(await awaitSettled(worker, 40));
+
+    const swallowed = (await countSwallowed(page, realms)) - baseline;
+    assert.ok(swallowed > 0, "keyboard-only blocker did not hold");
+
+    assert.equal(status.failed, false);
+    assert.equal(status.detail, "Finished typing.");
   });
 });
