@@ -5,9 +5,9 @@ import { VERSION } from "@/lib/version";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Dripwriter — Free Human Typing Extension for Google Docs",
+  title: "Dripwriter Origin — Free Human Typing Extension for Google Docs",
   description:
-    "Dripwriter is a free, open-source browser extension that types your text into Google Docs like a human — realistic typos, false starts, and short breaks. For Chrome, Edge & Firefox.",
+    "Dripwriter Origin is a free, open-source browser extension that types your text into Google Docs like a human — realistic typos, false starts, and short breaks. For Chrome, Edge & Firefox.",
   keywords: [
     "dripwriter",
     "dripwriter ai",
@@ -86,50 +86,50 @@ const jsonLd = {
       mainEntity: [
         {
           "@type": "Question",
-          name: "What is Dripwriter?",
+          name: "What is Dripwriter Origin?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Dripwriter is a free, open-source browser extension that types pasted text into Google Docs with adjustable speed, keyboard-neighbor typos that auto-correct, occasional false-start words, and configurable short breaks. The result reads like a person typing live, not a script pasting in one shot."
+            text: "Dripwriter Origin is a free, open-source browser extension that types pasted text into Google Docs with adjustable speed, keyboard-neighbor typos that auto-correct, occasional false-start words, and configurable short breaks. The result reads like a person typing live, not a script pasting in one shot."
           }
         },
         {
           "@type": "Question",
-          name: "Is Dripwriter free?",
+          name: "Is Dripwriter Origin free?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Yes — Dripwriter is free for all noncommercial use under the Dripwriter Origin License, and the source is open on GitHub. Commercial use requires a separate license; open an issue at https://github.com/alexey-max-fedorov/dripwriter-origin/issues."
+            text: "Yes — Dripwriter Origin is free for all noncommercial use under the Dripwriter Origin License, and the source is open on GitHub. Commercial use requires a separate license; open an issue at https://github.com/alexey-max-fedorov/dripwriter-origin/issues."
           }
         },
         {
           "@type": "Question",
-          name: "Which browsers does Dripwriter support?",
+          name: "Which browsers does Dripwriter Origin support?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Dripwriter works in Chrome, Microsoft Edge, and Firefox. The build pipeline ships both Chrome MV3 and Firefox MV3 packages, and extension.dripwriter.org routes you to the right store for your browser."
+            text: "Dripwriter Origin works in Chrome, Microsoft Edge, and Firefox. The build pipeline ships both Chrome MV3 and Firefox MV3 packages, and extension.dripwriter.org routes you to the right store for your browser."
           }
         },
         {
           "@type": "Question",
-          name: "Can I use Dripwriter on a school or work network?",
+          name: "Can I use Dripwriter Origin on a school or work network?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Dripwriter runs entirely inside your browser with no external servers to call and no telemetry, so there is nothing for a network filter to block once the extension is installed. If your browser can open the extension store and your Google Doc, Dripwriter works."
+            text: "Dripwriter Origin runs entirely inside your browser with no external servers to call and no telemetry, so there is nothing for a network filter to block once the extension is installed. If your browser can open the extension store and your Google Doc, Dripwriter works."
           }
         },
         {
           "@type": "Question",
-          name: "Does Dripwriter work with AI like Claude?",
+          name: "Does Dripwriter Origin work with AI like Claude?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Yes. With API mode enabled, Dripwriter exposes a window._dripwriter API on Google Docs tabs so an AI agent such as Claude can drive the typing engine. See the setup guide at https://dripwriter.org/ai."
+            text: "Yes. With API mode enabled, Dripwriter Origin exposes a window._dripwriter API on Google Docs tabs so an AI agent such as Claude can drive the typing engine. See the setup guide at https://dripwriter.org/ai."
           }
         },
         {
           "@type": "Question",
-          name: "Does Dripwriter work in Microsoft Word?",
+          name: "Does Dripwriter Origin work in Microsoft Word?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Not today. Dripwriter is built specifically for Google Docs, where its humanized typing engine is tuned to the Docs editor. Microsoft Word support is not currently available."
+            text: "Not today. Dripwriter Origin is built specifically for Google Docs, where its humanized typing engine is tuned to the Docs editor. Microsoft Word support is not currently available."
           }
         }
       ]
