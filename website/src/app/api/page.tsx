@@ -97,7 +97,7 @@ export default function ApiPage() {
           </h1>
 
           <p className="text-[#a0a0a0] text-base sm:text-lg leading-relaxed mb-12">
-            When API mode is enabled, Dripwriter exposes <InlineCode>window._dripwriter</InlineCode> on
+            When API mode is enabled, Dripwriter Origin exposes <InlineCode>window._dripwriter</InlineCode> on
             every open Google Docs tab — the same typing engine that powers the popup,
             scriptable from DevTools or an AI agent running in the page.
           </p>
@@ -107,7 +107,7 @@ export default function ApiPage() {
             {/* Enabling */}
             <SectionHeading>Enabling</SectionHeading>
             <ol className="list-decimal list-inside space-y-2 text-sm text-[#a0a0a0] leading-relaxed">
-              <li>Open the Dripwriter popup.</li>
+              <li>Open the Dripwriter Origin popup.</li>
               <li>Toggle <span className="text-white font-medium">Enable API mode</span> at the bottom of the popup.</li>
               <li>The API is now active on every currently-open Google Docs tab. No reload required.</li>
             </ol>

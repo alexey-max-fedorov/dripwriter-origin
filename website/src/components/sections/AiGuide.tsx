@@ -292,7 +292,7 @@ export default function AiGuide() {
           </StepCard>
 
           {/* ── step 3 ── */}
-          <StepCard step="03" logo={<LogoCursor />} title="Add the Dripwriter Skill to Claude">
+          <StepCard step="03" logo={<LogoCursor />} title="Add the Dripwriter Origin Skill to Claude">
             <Instruction>
               Copy the URL below and paste it directly in your address bar to open Claude&rsquo;s Shortcuts page.
             </Instruction>
@@ -315,7 +315,7 @@ export default function AiGuide() {
           </StepCard>
 
           {/* ── step 5 ── */}
-          <StepCard step="05" logo={<LogoGoogleDocs />} title="Use Dripwriter with Claude">
+          <StepCard step="05" logo={<LogoGoogleDocs />} title="Use Dripwriter Origin with Claude">
             <Instruction>
               Click the Claude in Chrome extension and give it a natural-language instruction using{" "}
               <code className="text-[#c9a84c] font-mono text-xs bg-[#0a0a0a] border border-[#1a1a1a] rounded px-1.5 py-0.5">

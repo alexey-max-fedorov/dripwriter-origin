@@ -99,7 +99,7 @@ No. The add-on requires no account, login, or registration. Install and use imme
 _What is Enable API Mode?_
 Enable API Mode is an optional toggle for developers and AI agents. When enabled, the extension exposes a `window._dripwriter` object in the browser console that lets external scripts start, stop, and control the typing session programmatically. It is disabled by default and has no effect on normal use.
 
-_Can AI agents like Claude or ChatGPT control Dripwriter?_
+_Can AI agents like Claude or ChatGPT control Dripwriter Origin?_
 Yes. When API Mode is enabled, any AI agent or tool that can execute JavaScript in the browser — including Claude, ChatGPT, Gemini, and custom automation scripts — can call `window._dripwriter.start()`, `stop()`, `status()`, and `test()` to drive the typing session. See [dripwriter.org/ai](https://dripwriter.org/ai) for a step-by-step setup guide.
 
 _Where is the API documentation?_

@@ -113,7 +113,7 @@ const jsonLd = {
           name: "Can I use Dripwriter Origin on a school or work network?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Dripwriter Origin runs entirely inside your browser with no external servers to call and no telemetry, so there is nothing for a network filter to block once the extension is installed. If your browser can open the extension store and your Google Doc, Dripwriter works."
+            text: "Dripwriter Origin runs entirely inside your browser with no external servers to call and no telemetry, so there is nothing for a network filter to block once the extension is installed. If your browser can open the extension store and your Google Doc, Dripwriter Origin works."
           }
         },
         {

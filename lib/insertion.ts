@@ -23,7 +23,7 @@ export interface MutationMethod<TTarget> {
 }
 
 export const DOCS_REJECTED_MESSAGE =
-  "Dripwriter can't type into this document. Google Docs is rejecting every input method. " +
+  "Dripwriter Origin can't type into this document. Google Docs is rejecting every input method. " +
   "Reload the page, click directly into the document, then press Start.";
 
 export const DOCS_STOPPED_MESSAGE =

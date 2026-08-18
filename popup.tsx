@@ -160,7 +160,7 @@ function PopupView() {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
       if (!tab?.id || !tab.url?.startsWith("https://docs.google.com/document/")) {
-        setStatusDetail("Open a Google Docs document tab before using Dripwriter.");
+        setStatusDetail("Open a Google Docs document tab before using Dripwriter Origin.");
         setStatusState("error");
         return null;
       }

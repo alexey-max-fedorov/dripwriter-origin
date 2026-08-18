@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Dripwriter — Free human typing extension for Google Docs";
+export const alt = "Dripwriter Origin — Free human typing extension for Google Docs";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -24,7 +24,7 @@ export default function OgImage() {
           Free · Open Source · Chrome · Edge · Firefox
         </div>
         <div style={{ fontSize: 76, fontWeight: 700, marginTop: 24, lineHeight: 1.05 }}>
-          Dripwriter
+          Dripwriter Origin
         </div>
         <div style={{ fontSize: 40, color: "#a0a0a0", marginTop: 16 }}>
           Type into Google Docs like a human.
