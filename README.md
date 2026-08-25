@@ -16,6 +16,14 @@ Built with [Plasmo](https://docs.plasmo.com/) + React + TypeScript.
 
 The **"Origin"** suffix follows established open-source naming convention (as in *uBlock* / *uBlock Origin*): it denotes an independent, community project distinct from any similarly named commercial product. Any reference to "Dripwriter" in this project describes that separate product solely for the purpose of identification and comparison.
 
+## ⭐️ FEATURED 
+
+FEATURED IN [MANN BELLANI](https://www.instagram.com/mann.ascends/) AND [ALEXEY FEDOROV](https://www.instagram.com/alexeyfedorov._/)'S VIDEO ('LARPSLAYER' SERIES):
+
+*HOW I MADE A FREE ALTERNATIVE TO DRIPWRITER*
+
+https://www.instagram.com/reel/Dbz2SPnKwsx/
+
 ## Develop
 
 ```bash
