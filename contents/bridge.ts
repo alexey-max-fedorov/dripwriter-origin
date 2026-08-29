@@ -13,7 +13,8 @@ import {
 } from "../types";
 
 export const config: PlasmoCSConfig = {
-  matches: ["https://docs.google.com/document/*"],
+  matches: ["<all_urls>"],
+  all_frames: true,
   run_at: "document_idle",
   world: "MAIN"
 };

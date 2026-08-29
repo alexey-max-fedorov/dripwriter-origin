@@ -271,6 +271,15 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
 }
 
 async function runTypingDiagnostics(run: RunState) {
+  const harness = selectHarness({ isCancelled: () => run.cancelled || activeRun !== run });
+
+  // Off Google Docs there is no editor-build matrix to probe — a standard
+  // editable either accepts our verified insert or it doesn't. Test it once.
+  if (harness.id !== "docs") {
+    await runGenericDiagnostics(run, harness);
+    return;
+  }
+
   try {
     await runCountdownWithPrefix(run, "Running typing diagnostics");
 
@@ -305,6 +314,47 @@ async function runTypingDiagnostics(run: RunState) {
 
     const detail = error instanceof Error ? error.message : "Diagnostics failed.";
     setStatus(false, detail);
+    run.onSettled?.({ ok: false, error: detail });
+  }
+}
+
+async function runGenericDiagnostics(run: RunState, harness: Harness) {
+  try {
+    await runCountdownWithPrefix(run, "Testing this text box");
+
+    if (run.cancelled || activeRun !== run) {
+      run.onSettled?.({ ok: false, error: "cancelled" });
+      return;
+    }
+
+    const marker = "Dripwriter test";
+
+    for (const char of marker) {
+      if (run.cancelled || activeRun !== run) {
+        run.onSettled?.({ ok: false, error: "cancelled" });
+        return;
+      }
+      await harness.insert(char);
+      await wait(run, 55, false);
+    }
+
+    // Clean up the marker so the probe leaves the field as it found it.
+    await harness.delete(marker.length);
+
+    if (!run.cancelled && activeRun === run) {
+      activeRun = null;
+      releaseWakeLock();
+      setStatus(false, "Test passed — this text box accepts Dripwriter input.");
+      run.onSettled?.({ ok: true });
+    }
+  } catch (error) {
+    if (activeRun === run) {
+      activeRun = null;
+      releaseWakeLock();
+    }
+
+    const detail = error instanceof Error ? error.message : "Test failed.";
+    setStatus(false, detail, true);
     run.onSettled?.({ ok: false, error: detail });
   }
 }
