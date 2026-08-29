@@ -39,7 +39,7 @@ const pending = new Map<string, {
   reject: (error: Error) => void;
 }>();
 
-export const VERSION = "2.2.1";
+export const VERSION = "2.3.0";
 
 let apiVersion = VERSION;
 
