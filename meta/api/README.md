@@ -1,6 +1,6 @@
 # Dripwriter Console API
 
-When **API mode** is enabled in the extension popup, the Dripwriter extension exposes a global object on every open Google Docs tab:
+When **API mode** is enabled in the extension popup, the Dripwriter extension exposes a global object on every open tab you're typing into — a Google Doc, a Canvas assignment, the Packback editor, or any page with a text box:
 
 ```js
 window._dripwriter
@@ -12,9 +12,9 @@ This is the same typing engine that powers the popup's Start / Run Test / Stop b
 
 1. Open the Dripwriter popup.
 2. Toggle **Enable API mode** at the bottom of the popup.
-3. The API is now active on every currently-open Google Docs tab. No reload required.
+3. The API is now active on every currently-open tab with a text box. No reload required.
 
-Toggling off removes `window._dripwriter` from every Docs tab immediately. Any in-flight `start()` Promises reject with `"Dripwriter API mode was disabled."`, and the typing engine is stopped if the active run was API-initiated. Popup-initiated runs are not affected — they keep typing.
+Toggling off removes `window._dripwriter` from every tab immediately. Any in-flight `start()` Promises reject with `"Dripwriter API mode was disabled."`, and the typing engine is stopped if the active run was API-initiated. Popup-initiated runs are not affected — they keep typing.
 
 ## Minimum example
 
@@ -57,7 +57,7 @@ For full per-method behavior and edge cases see [reference.md](./reference.md).
 
 ## Lifecycle
 
-- The API is **only** available on tabs matching `https://docs.google.com/document/*`.
+- With API mode enabled, the bridge is available on any page you're typing into — Google Docs, Canvas, Packback, or any standard textarea or contenteditable field.
 - Calling `start()` while another run is in progress stops the previous run before starting the new one — this matches the popup's Start button behavior.
 - Calling `start()` from one place (popup or API) and then `stop()` from the other works correctly. A popup-driven stop will reject any pending API-driven `start()` Promise with `"cancelled"`.
 
@@ -67,4 +67,4 @@ If you're an agent driving Dripwriter from the page:
 
 1. Always `await` `start()`. The Promise resolves on natural completion — don't poll `status()` in a loop.
 2. Snapshot the text into `config.text` before calling `start()`. The settings object is read at start time, so mutating it mid-run has no effect on the current run.
-3. If the user has the Docs page open and the cursor isn't in the editable area, typing will fail with `"The Google Docs cursor was lost. Click back into the document and retry."` — surface this to the user.
+3. If the cursor isn't in the editable area, typing will fail — on Google Docs with `"The Google Docs cursor was lost. Click back into the document and retry."`, and on other fields with a similar "click back into it" message — surface it to the user.

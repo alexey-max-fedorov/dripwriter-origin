@@ -49,7 +49,7 @@ export function Hero() {
             className="text-5xl sm:text-6xl lg:text-8xl leading-[1.05] text-white mb-6"
             style={{ fontFamily: "var(--font-playfair-display)" }}
           >
-            <AnimatedText>Type into Google Docs like a human.</AnimatedText>
+            <AnimatedText>Type into any website like a human.</AnimatedText>
           </h1>
 
           <motion.p
@@ -58,10 +58,10 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-[#a0a0a0] text-base sm:text-lg leading-relaxed mb-10"
           >
-            Dripwriter Origin is a free browser extension that pastes your text into a
-            Google Doc one believable keystroke at a time — with adjustable
-            speed, keyboard-neighbor typos that auto-correct, false-start words,
-            and short breaks.
+            Dripwriter Origin is a free browser extension that types your text into
+            Google Docs, Canvas, Packback, and virtually any text box one believable
+            keystroke at a time — with adjustable speed, keyboard-neighbor typos that
+            auto-correct, false-start words, and short breaks.
           </motion.p>
 
           <motion.div

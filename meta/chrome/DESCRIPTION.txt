@@ -1,11 +1,11 @@
-Dripwriter Origin types your text into Google Docs with natural, human-like cadence — variable speed, realistic typos, false starts, and periodic breaks — so your document looks and feels like it was written by hand.
+Dripwriter Origin types your text into any website — Google Docs, Canvas, the Packback editor, and virtually any text box — with natural, human-like cadence: variable speed, realistic typos, false starts, and periodic breaks — so your writing looks and feels like it was typed by hand.
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 HOW IT WORKS
 
-Paste your text into the Dripwriter Origin popup. Click where you want typing to begin in your Google Docs document. Press Start. The extension types character by character at a pace you control.
+Paste your text into the Dripwriter Origin popup. Click where you want typing to begin — a Google Doc, a Canvas assignment, the Packback editor, or any standard textarea or contenteditable field. Press Start. The extension types character by character at a pace you control.
 
 Every detail of the typing rhythm is configurable:
 
@@ -26,15 +26,15 @@ Enable API Mode: For developers and AI assistants, an optional JavaScript API (w
 
 WHO IT'S FOR
 
-Accessibility users: People with motor impairments, repetitive strain injury, essential tremor, or other conditions that make sustained typing painful or difficult can prepare their text using voice dictation, AI writing assistants, or other adaptive tools, then let Dripwriter Origin handle the actual keystroke input into Google Docs.
+Accessibility users: People with motor impairments, repetitive strain injury, essential tremor, or other conditions that make sustained typing painful or difficult can prepare their text using voice dictation, AI writing assistants, or other adaptive tools, then let Dripwriter Origin handle the actual keystroke input into Google Docs, Canvas, or any text box.
 
-Students and researchers: Writers who draft content in one tool and need it entered into Google Docs with natural timing.
+Students and researchers: Writers who draft content in one tool and need it entered into Google Docs, a Canvas assignment, or a discussion editor like Packback with natural timing.
 
-Content creators: Writers who work across multiple platforms and tools, consolidating their writing into Google Docs.
+Content creators: Writers who work across multiple platforms and tools, consolidating their writing into Google Docs and any other web editor.
 
 Professionals with RSI: Anyone managing repetitive strain who needs to minimize keystrokes during a writing session.
 
-Developers and AI automation builders: Build pipelines where an AI agent — Claude, ChatGPT, Gemini, or a custom script — drafts content and Dripwriter Origin types it into Google Docs via the window._dripwriter JavaScript API. Full programmatic control over speed, typo simulation, false starts, and breaks, so the output looks genuinely human-written.
+Developers and AI automation builders: Build pipelines where an AI agent — Claude, ChatGPT, Gemini, or a custom script — drafts content and Dripwriter Origin types it into Google Docs, Canvas, or any text box via the window._dripwriter JavaScript API. Full programmatic control over speed, typo simulation, false starts, and breaks, so the output looks genuinely human-written.
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -79,7 +79,7 @@ All settings persist automatically. Your configuration is saved locally and rest
 
 COMPATIBLE WITH
 
-Google Docs documents (docs.google.com/document/*)
+Google Docs, Canvas LMS, the Packback editor (including embedded cross-origin iframes), and virtually any standard textarea, input, or contenteditable field on any website. Google Docs has the most finely tuned typing engine; other sites use a verified generic insertion path.
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -94,13 +94,13 @@ Dripwriter Origin does not collect any data. Your text never leaves your device.
 FREQUENTLY ASKED QUESTIONS
 
 What is Dripwriter Origin?
-Dripwriter Origin is a Chrome extension that types pasted text into Google Docs with realistic human cadence — variable speed, natural typos, false starts, and breaks. It is designed for users who need keystroke simulation in Google Docs, particularly as an accessibility tool for people who find sustained typing difficult or painful.
+Dripwriter Origin is a Chrome extension that types pasted text into Google Docs, Canvas, the Packback editor, and virtually any text box with realistic human cadence — variable speed, natural typos, false starts, and breaks. It is designed for users who need keystroke simulation on the web, particularly as an accessibility tool for people who find sustained typing difficult or painful.
 
 Does Dripwriter Origin work on any website?
-No. Dripwriter Origin is specifically designed for Google Docs documents (docs.google.com/document/*). It does not activate on any other website.
+Yes. Dripwriter Origin types into Google Docs, Canvas LMS, the Packback editor (including cross-origin iframes), and virtually any standard textarea, input, or contenteditable field on any site. Google Docs gets the most finely tuned typing engine; everywhere else uses a verified generic insertion path. Native desktop apps like Microsoft Word are not supported because they aren't web pages.
 
-Does the extension read my Google Docs content?
-No. The extension only receives the text you explicitly paste into its popup. It never reads the content of your Google Docs document.
+Does the extension read the page content?
+No. The extension only receives the text you explicitly paste into its popup. It never reads, logs, or transmits the content of your document or the page you're typing into.
 
 Can I stop typing in the middle of a session?
 Yes. Open the Dripwriter Origin popup at any time and press Stop. Typing halts immediately.
@@ -139,9 +139,9 @@ PERMISSIONS EXPLAINED
 
 Storage: Saves your settings (speed, variance, typo rate, break timing) and theme preference locally on your device. Nothing is synced or transmitted externally.
 
-Tabs: Required to identify the active browser tab, confirm it is a Google Docs document, and communicate with the typing script running in that tab. The extension only queries the currently focused tab.
+Scripting: Required to register the optional API bridge in the page's main JavaScript world, which exposes the window._dripwriter interface so developers and AI assistants can drive typing programmatically. The bridge is bundled with the extension, activates only on the page you're working in, and makes no external network requests.
 
-Access to docs.google.com: Required to inject the typing script into Google Docs pages. Without this permission, the extension cannot send keystrokes to your document. The extension does not access any other website.
+Access to all sites: Required to inject the typing script into whatever page you're working on, because the text box you type into can live on any website — a Google Doc, a Canvas assignment, an embedded editor such as Packback (which loads inside a cross-origin iframe), or any standard textarea or contenteditable field. The script only dispatches keystrokes into the field you've clicked into on the page you're actively viewing. The extension never reads, stores, or transmits page content or browsing history, and makes no external network requests.
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

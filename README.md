@@ -1,6 +1,6 @@
 # Dripwriter Origin
 
-A cross-browser extension (Chrome / Edge / Firefox) that types pasted text into Google Docs with believable human cadence:
+A cross-browser extension (Chrome / Edge / Firefox) that types pasted text into any website — Google Docs, Canvas, the Packback editor, and virtually any `<textarea>`, `<input>`, or `[contenteditable]` field — with believable human cadence:
 
 - adjustable typing speed (20–150 WPM)
 - keyboard-neighbor typos that get auto-corrected
@@ -48,7 +48,7 @@ The packaged `*.zip` files in `build/` are tracked in git; the unpacked `build/<
 
 ## Usage
 
-1. Open a Google Docs document.
+1. Open any page with a text box — a Google Doc, a Canvas assignment, the Packback editor, or any standard textarea / contenteditable field.
 2. Click where the typing should begin.
 3. Open the Dripwriter Origin popup from the toolbar.
 4. Paste your text, tune the cadence, and press **Start**.

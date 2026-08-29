@@ -26,7 +26,7 @@ const steps = [
   {
     icon: PlayCircle,
     title: "Drip away",
-    desc: "Open a Google Doc, paste your text into the popup, tune the sliders, and press Start."
+    desc: "Open a Google Doc, a Canvas assignment, or any text box, paste your text into the popup, tune the sliders, and press Start."
   }
 ];
 

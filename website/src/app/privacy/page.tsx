@@ -32,7 +32,7 @@ const sections = [
   },
   {
     heading: "What the Extension Can See",
-    body: "The content script runs on docs.google.com only, as declared in the manifest. It reads the text you provide in the extension popup and simulates typing keystrokes into the active Google Doc. It does not read, log, or transmit the contents of your document."
+    body: "So it can type into whatever text box you're working in — a Google Doc, a Canvas assignment, the Packback editor, or any standard textarea or contenteditable field — the content script runs on the page you're actively viewing. It reads only the text you provide in the extension popup and simulates keystrokes into the field you've clicked into. It does not read, log, or transmit the contents of that page, your document, or your browsing activity, and it never sends anything to any server."
   },
   {
     heading: "Disclaimer of Liability",

@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 export const metadata: Metadata = {
   title: "Console API — Dripwriter Origin",
   description:
-    "Dripwriter Origin exposes a scriptable window._dripwriter API on Google Docs tabs when API mode is enabled. Drive the typing engine from DevTools or an AI agent.",
+    "Dripwriter Origin exposes a scriptable window._dripwriter API on any site you're typing into — Google Docs, Canvas, and beyond — when API mode is enabled. Drive the typing engine from DevTools or an AI agent.",
   alternates: { canonical: "https://dripwriter.org/api" }
 };
 
@@ -98,8 +98,9 @@ export default function ApiPage() {
 
           <p className="text-[#a0a0a0] text-base sm:text-lg leading-relaxed mb-12">
             When API mode is enabled, Dripwriter Origin exposes <InlineCode>window._dripwriter</InlineCode> on
-            every open Google Docs tab — the same typing engine that powers the popup,
-            scriptable from DevTools or an AI agent running in the page.
+            every open tab — a Google Doc, a Canvas assignment, the Packback editor, or any page with a
+            text box — the same typing engine that powers the popup, scriptable from DevTools or an AI
+            agent running in the page.
           </p>
 
           <div className="border-t border-[#1a1a1a] pt-2">
@@ -109,10 +110,10 @@ export default function ApiPage() {
             <ol className="list-decimal list-inside space-y-2 text-sm text-[#a0a0a0] leading-relaxed">
               <li>Open the Dripwriter Origin popup.</li>
               <li>Toggle <span className="text-white font-medium">Enable API mode</span> at the bottom of the popup.</li>
-              <li>The API is now active on every currently-open Google Docs tab. No reload required.</li>
+              <li>The API is now active on every currently-open tab with a text box. No reload required.</li>
             </ol>
             <p className="text-sm text-[#a0a0a0] leading-relaxed mt-4">
-              Toggling off removes <InlineCode>window._dripwriter</InlineCode> from every Docs tab
+              Toggling off removes <InlineCode>window._dripwriter</InlineCode> from every tab
               immediately. Any in-flight <InlineCode>start()</InlineCode> Promises reject with{" "}
               <InlineCode>"Dripwriter API mode was disabled."</InlineCode>
             </p>
@@ -199,7 +200,7 @@ _dripwriter.config.breakMaxSeconds = 12;       // breakMinSeconds–90`}</CodeBl
             </Prose>
             <p className="text-sm text-[#a0a0a0] leading-relaxed mt-3">
               <strong className="text-white font-medium">Rejects when:</strong> text is empty ·
-              Google Docs cursor is lost · run is cancelled · API mode is disabled mid-run.
+              the cursor leaves the text box · run is cancelled · API mode is disabled mid-run.
               Popup-initiated runs are <em>not</em> stopped when API mode is disabled.
             </p>
 
@@ -243,8 +244,8 @@ _dripwriter.config.breakMaxSeconds = 12;       // breakMinSeconds–90`}</CodeBl
             <SectionHeading>Lifecycle</SectionHeading>
             <ul className="list-disc list-inside space-y-2 text-sm text-[#a0a0a0] leading-relaxed">
               <li>
-                The API is only available on tabs matching{" "}
-                <InlineCode>https://docs.google.com/document/*</InlineCode>.
+                With API mode enabled, the bridge is available on any page you're typing into —
+                Google Docs, Canvas, Packback, or any standard textarea or contenteditable field.
               </li>
               <li>
                 Calling <InlineCode>start()</InlineCode> while another run is in progress stops
@@ -268,9 +269,9 @@ _dripwriter.config.breakMaxSeconds = 12;       // breakMinSeconds–90`}</CodeBl
                 <InlineCode>start()</InlineCode>. Mutating it mid-run has no effect.
               </li>
               <li>
-                If the cursor isn&apos;t in the editable area, typing fails with{" "}
-                <InlineCode>"The Google Docs cursor was lost. Click back into the document and retry."</InlineCode>{" "}
-                — surface this to the user.
+                If the cursor isn&apos;t in the editable area, typing fails — on Google Docs with{" "}
+                <InlineCode>"The Google Docs cursor was lost. Click back into the document and retry."</InlineCode>,
+                and on other fields with a similar &ldquo;click back into it&rdquo; message — surface it to the user.
               </li>
             </ol>
 

@@ -1,15 +1,18 @@
 TESTING INSTRUCTIONS — Dripwriter Origin
 
 IMPORTANT — READ FIRST
-This extension types where YOUR CURSOR is in the Google Docs document. You
-MUST click inside the document body first to place the text cursor. Skip this
-and there is no cursor to type into, so nothing appears. This is the #1 reason
-testing looks like it "does nothing."
+This extension types where YOUR CURSOR is in the active text box — a Google Doc,
+a Canvas assignment, or any standard textarea or contenteditable field. You MUST
+click inside that field first to place the text cursor. Skip this and there is no
+cursor to type into, so nothing appears. This is the #1 reason testing looks like
+it "does nothing." The steps below use Google Docs as the primary example because
+it has the most finely tuned typing engine.
 
 PREREQUISITES
 - Microsoft Edge with the extension installed
 - A free Google account
-- A Google Docs document open in Edge
+- A Google Docs document open in Edge (the primary test target; any page with a
+  text box also works)
 
 SETUP
 1. Open a doc: https://docs.google.com/document/create
@@ -37,10 +40,17 @@ DIAGNOSTICS
 10. Click inside the document body, open the popup, click Diagnostics. Confirm
     it completes and inserts marker text, reporting the input area reachable.
 
+CROSS-SITE CHECK
+11. Open any page with a plain text box (e.g. a Canvas assignment, or a site
+    with a textarea). Click into the field, open the popup, paste text, Start —
+    confirm it types there too.
+
 BOUNDARY CHECK
-11. Go to a non-Docs page (e.g. edge://newtab). Open the popup — confirm it
-    indicates it is inactive on this page.
+12. Go to a browser-internal page where no content script can run (e.g.
+    edge://newtab). Open the popup — confirm it indicates it is inactive on this
+    page.
 
 PERMISSIONS
-storage (saves settings locally), tabs (identifies active tab), and access to
-docs.google.com (injects typing script). No external network requests.
+storage (saves settings locally), tabs (identifies active tab), and host access
+to all sites (injects the typing script into whatever page you're typing into).
+No external network requests.

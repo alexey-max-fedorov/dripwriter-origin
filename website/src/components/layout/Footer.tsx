@@ -77,7 +77,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-[#a0a0a0] leading-relaxed max-w-xs">
-              Type into Google Docs like a human — typos, false starts, breaks. Free, open-source, cross-browser.
+              Type into any website like a human — Google Docs, Canvas, any text box. Typos, false starts, breaks. Free, open-source, cross-browser.
             </p>
           </div>
 

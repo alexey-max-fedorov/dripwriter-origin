@@ -1,3 +1,5 @@
+Google Docs is the primary test target (most finely tuned engine), but the extension types into any text box — Canvas, Packback, or any standard textarea or contenteditable field.
+
 1. Open https://docs.google.com/document/create in Chrome.
 2. Click the Dripwriter Origin icon in the toolbar.
 3. Paste or voice dictate text into the popup (voice dictation uses OS accessibility tools, not the extension).
@@ -6,3 +8,4 @@
 6. Click Stop — typing halts immediately.
 7. Adjust sliders, restart — confirm new settings apply.
 8. Reopen popup — confirm settings persisted.
+9. Cross-site check: open any page with a plain text box (e.g. a Canvas assignment or a site with a textarea), click into the field, and Start — confirm it types there too.
