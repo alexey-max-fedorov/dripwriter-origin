@@ -6,6 +6,7 @@ import {
   type DripwriterMessage,
   type DripwriterResponse,
   type DripwriterSettings,
+  type TargetFrameResponse,
   type TypingStatus
 } from "./types";
 import { VERSION_TAG } from "~/lib/version";
@@ -62,7 +63,7 @@ const STORAGE_KEY = "dripwriterSettings";
 function PopupView() {
   const [settings, setSettings] = useState<DripwriterSettings>(DEFAULT_SETTINGS);
   const [statusDetail, setStatusDetail] = useState<string>(
-    "Idle. Put the cursor inside a Google Doc, then press Start."
+    "Idle. Click into any text box, then press Start."
   );
   const [statusState, setStatusState] = useState<StatusState>("idle");
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -155,22 +156,44 @@ function PopupView() {
     return () => clearTimeout(t);
   }, [titleLen]);
 
-  const sendToActiveDoc = useCallback(
+  const sendToActiveTab = useCallback(
     async (message: DripwriterMessage): Promise<DripwriterResponse | null> => {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-      if (!tab?.id || !tab.url?.startsWith("https://docs.google.com/document/")) {
-        setStatusDetail("Open a Google Docs document tab before using Dripwriter Origin.");
+      if (!tab?.id) {
+        setStatusDetail("No active tab to type into.");
         setStatusState("error");
         return null;
       }
 
+      // Google Docs owns the top frame; everywhere else, ask the service worker
+      // which frame last focused an editable — that's where the user wants to
+      // type, even when it's a cross-origin iframe like the Packback editor.
+      const isDocs = tab.url?.startsWith("https://docs.google.com/document/");
+      let frameId: number | undefined = isDocs ? 0 : undefined;
+
+      if (!isDocs) {
+        const res = (await chrome.runtime.sendMessage({
+          type: "GET_TARGET_FRAME",
+          tabId: tab.id
+        })) as TargetFrameResponse | undefined;
+
+        if (res?.frameId == null) {
+          setStatusDetail("Click into a text box on the page, then press Start.");
+          setStatusState("error");
+          return null;
+        }
+        frameId = res.frameId;
+      }
+
       try {
-        return (await chrome.tabs.sendMessage(tab.id, message)) as DripwriterResponse;
+        return (await chrome.tabs.sendMessage(
+          tab.id,
+          message,
+          frameId != null ? { frameId } : undefined
+        )) as DripwriterResponse;
       } catch {
-        setStatusDetail(
-          "The Google Docs tab is open, but the page needs a refresh so the extension can attach."
-        );
+        setStatusDetail("Reload the page so the extension can attach, then try again.");
         setStatusState("error");
         return null;
       }
@@ -179,11 +202,11 @@ function PopupView() {
   );
 
   const refreshStatus = useCallback(async () => {
-    const response = await sendToActiveDoc({ type: "GET_STATUS" });
+    const response = await sendToActiveTab({ type: "GET_STATUS" });
     if (!response) return;
     setStatusDetail(response.status.detail);
     setStatusState(stateForStatus(response.status, "idle"));
-  }, [sendToActiveDoc]);
+  }, [sendToActiveTab]);
 
   const onStart = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -201,7 +224,7 @@ function PopupView() {
         setSettings(payload);
       }
 
-      const response = await sendToActiveDoc({ type: "START_DRIP", payload });
+      const response = await sendToActiveTab({ type: "START_DRIP", payload });
       if (!response) return;
 
       setStatusDetail(response.status.detail);
@@ -211,11 +234,11 @@ function PopupView() {
         window.close();
       }
     },
-    [settings, sendToActiveDoc]
+    [settings, sendToActiveTab]
   );
 
   const onStop = useCallback(async () => {
-    const response = await sendToActiveDoc({ type: "STOP_DRIP" });
+    const response = await sendToActiveTab({ type: "STOP_DRIP" });
     if (!response) {
       setStatusDetail("Stopped locally.");
       setStatusState("idle");
@@ -223,15 +246,15 @@ function PopupView() {
     }
     setStatusDetail(response.status.detail);
     setStatusState("idle");
-  }, [sendToActiveDoc]);
+  }, [sendToActiveTab]);
 
   const onDiagnostics = useCallback(async () => {
-    const response = await sendToActiveDoc({ type: "RUN_DIAGNOSTICS" });
+    const response = await sendToActiveTab({ type: "RUN_DIAGNOSTICS" });
     if (!response) return;
     setStatusDetail(response.status.detail);
     setStatusState(stateForStatus(response.status, "done"));
     if (response.ok) window.close();
-  }, [sendToActiveDoc]);
+  }, [sendToActiveTab]);
 
   const update = <K extends keyof DripwriterSettings>(key: K, value: DripwriterSettings[K]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
@@ -271,7 +294,7 @@ function PopupView() {
           <textarea
             id="text"
             rows={9}
-            placeholder="Paste the text you want typed into Google Docs..."
+            placeholder="Paste the text you want typed into any text box..."
             value={settings.text}
             onChange={(e) => update("text", e.target.value)}
           />
