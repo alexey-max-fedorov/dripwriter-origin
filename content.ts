@@ -191,15 +191,15 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
       return;
     }
 
-    // Stays "Checking..." until a character is PROVEN to have landed, so a
-    // document that rejects our input never shows a fake progress percentage.
-    setStatus(true, "Checking Google Docs...");
-
     const harness = selectHarness({
       onFirstWrite: () => setStatus(true, "Typing..."),
       isCancelled: () => run.cancelled || activeRun !== run,
       betweenDeletes: () => wait(run, randomBetween(35, 85), true)
     });
+
+    // Stays "Checking..." until a character is PROVEN to have landed, so a
+    // document that rejects our input never shows a fake progress percentage.
+    setStatus(true, harness.id === "docs" ? "Checking Google Docs..." : "Checking editor...");
 
     const text = settings.text.replace(/\r\n/g, "\n");
 

@@ -32,7 +32,8 @@
   "manifest": {
     "name": "Dripwriter Origin",
     "permissions": [
-      "storage"
+      "storage",
+      "scripting"
     ],
     "host_permissions": [
       "<all_urls>"

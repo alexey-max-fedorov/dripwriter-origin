@@ -32,10 +32,21 @@ chrome.runtime.onMessage.addListener((message: FrameMessage, sender, sendRespons
       : [];
     const response: TargetFrameResponse = { frameId: selectTargetFrame(focuses) };
     sendResponse(response);
-    return true; // keep the message channel open for the async-shaped response
+    return;
   }
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   focusByTab.delete(tabId);
+});
+
+// A same-tab navigation destroys every frame we had recorded, so drop the tab's
+// stale frame targets the moment it starts loading a new page. Without this, the
+// popup could route a command to a frameId that no longer exists until the user
+// happens to focus a fresh editable. `changeInfo.status` needs no `tabs`
+// permission (only url/title/favIconUrl do), so this stays permission-free.
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === "loading") {
+    focusByTab.delete(tabId);
+  }
 });
