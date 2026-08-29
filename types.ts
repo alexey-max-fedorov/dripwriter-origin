@@ -70,3 +70,18 @@ export interface BridgeResponse {
   error?: string;
   status?: TypingStatus;
 }
+
+// ---- Frame targeting (background service worker) ----
+
+/**
+ * With `all_frames` injection every frame runs a content script. The background
+ * service worker tracks which frame last focused an editable so the popup can
+ * send typing commands to the right one (e.g. the cross-origin Packback iframe).
+ */
+export type FrameMessage =
+  | { type: "EDITABLE_FOCUSED" }
+  | { type: "GET_TARGET_FRAME"; tabId: number };
+
+export interface TargetFrameResponse {
+  frameId: number | null;
+}

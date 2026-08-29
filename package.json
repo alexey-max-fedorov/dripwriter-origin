@@ -32,11 +32,10 @@
   "manifest": {
     "name": "Dripwriter Origin",
     "permissions": [
-      "storage",
-      "tabs"
+      "storage"
     ],
     "host_permissions": [
-      "https://docs.google.com/*"
+      "<all_urls>"
     ],
     "browser_specific_settings": {
       "gecko": {

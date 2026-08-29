@@ -1,7 +1,8 @@
 import type { PlasmoCSConfig } from "plasmo";
 
 export const config: PlasmoCSConfig = {
-  matches: ["https://docs.google.com/document/*"],
+  matches: ["<all_urls>"],
+  all_frames: true,
   run_at: "document_idle"
 };
 
@@ -17,6 +18,7 @@ import {
   type DripwriterResponse,
   DEFAULT_SETTINGS,
   type DripwriterSettings,
+  type FrameMessage,
   type TypingStatus
 } from "./types";
 import { VERSION } from "~/lib/version";
@@ -52,6 +54,32 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   void handleMessage(message as DripwriterMessage).then(sendResponse);
   return true;
 });
+
+// ---- Frame targeting: tell the SW when this frame owns an editable ----
+// With all_frames injection there are many content scripts per tab; the popup
+// asks the SW which frame to type into, so each frame must report its target.
+
+function reportEditableFocus() {
+  void chrome.runtime.sendMessage({ type: "EDITABLE_FOCUSED" } satisfies FrameMessage).catch(() => {});
+}
+
+document.addEventListener(
+  "focusin",
+  () => {
+    if (selectHarness().hasTarget()) reportEditableFocus();
+  },
+  true
+);
+
+// Docs paints to <canvas>; a click into the doc establishes the target without a
+// focusin on a normal editable, so report on click too.
+document.addEventListener(
+  "click",
+  () => {
+    if (selectHarness().hasTarget()) reportEditableFocus();
+  },
+  true
+);
 
 async function handleMessage(message: DripwriterMessage): Promise<DripwriterResponse> {
   if (message.type === "GET_STATUS") {
