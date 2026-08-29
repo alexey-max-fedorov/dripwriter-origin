@@ -140,8 +140,11 @@ export class DocsHarness implements Harness {
   private whitespaceNeedsPairing = false;
   /** False until a character has provably landed in the document. */
   private wrote = false;
+  private deps: HarnessDeps;
 
-  constructor(private deps: HarnessDeps = {}) {}
+  constructor(deps: HarnessDeps = {}) {
+    this.deps = deps;
+  }
 
   hasTarget(): boolean {
     return findDocsTarget() !== null;
