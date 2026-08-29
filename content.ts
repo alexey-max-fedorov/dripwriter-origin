@@ -20,54 +20,15 @@ import {
   type TypingStatus
 } from "./types";
 import { VERSION } from "~/lib/version";
-import {
-  buildCaretSignature,
-  buildWhitespacePairSuffix,
-  cascadeUntilVerified,
-  DELETE_REJECTED_MESSAGE,
-  DOCS_REJECTED_MESSAGE,
-  DOCS_STOPPED_MESSAGE,
-  type MutationMethod,
-  waitForChange
-} from "~/lib/insertion";
-
-interface DocsTarget {
-  doc: Document;
-  element: HTMLElement;
-}
+import { selectHarness } from "~/lib/harness/registry";
+import { DIAGNOSTIC_METHODS } from "~/lib/harness/docs";
+import type { Harness } from "~/lib/harness/types";
 
 interface RunState {
   cancelled: boolean;
   activeTypingMs: number;
   nextBreakThresholdMs?: number;
   onSettled?: (result: { ok: boolean; error?: string }) => void;
-  /**
-   * Insertion method that Docs has been observed to accept in THIS session.
-   * Docs serves different editor builds per user, and each build accepts a
-   * different subset of synthetic events — so the working method is discovered
-   * at runtime on the first character rather than assumed.
-   */
-  textMethod?: DocsMethod;
-  /** Whitespace is accepted by a different set of methods than printable chars. */
-  spaceMethod?: DocsMethod;
-  /** Deletion is accepted by a different set of methods again. */
-  deleteMethod?: DocsMethod;
-  /** False until we have proven, via the DOM, that a character actually landed. */
-  provenWriteable?: boolean;
-  /**
-   * Set once this build rejected lone whitespace via every single-character
-   * method (it ignores beforeinput and paste drops whitespace-only content).
-   * From then on whitespace is pasted together with the following character.
-   */
-  whitespaceNeedsPairing?: boolean;
-}
-
-type DocsMethod = MutationMethod<DocsTarget>;
-
-interface DiagnosticMethod {
-  label: string;
-  description: string;
-  run: () => boolean;
 }
 
 const keyboardRows = [
@@ -86,52 +47,6 @@ let currentStatus: TypingStatus = {
   running: false,
   detail: "Idle. Click where you want the text to start, then press Start."
 };
-
-const DIAGNOSTIC_METHODS: DiagnosticMethod[] = [
-  {
-    label: "AAA",
-    description: "Paste event on iframe contenteditable",
-    run: () => dispatchDocsPaste(getDocsContentEditableTarget(), "AAA ")
-  },
-  {
-    label: "BBB",
-    description: "Paste event on iframe activeElement",
-    run: () => dispatchDocsPaste(getDocsActiveElementTarget(), "BBB ")
-  },
-  {
-    label: "CCC",
-    description: "Bubbling paste event on iframe contenteditable",
-    run: () => dispatchDocsPaste(getDocsContentEditableTarget(), "CCC ", { bubbles: true, cancelable: true })
-  },
-  {
-    label: "DDD",
-    description: "iframe execCommand insertText",
-    run: () => {
-      const doc = getDocsIframeDocument();
-      return doc ? tryExecInsert(doc, "DDD ") : false;
-    }
-  },
-  {
-    label: "EEE",
-    description: "window execCommand insertText",
-    run: () => tryExecInsert(document, "EEE ")
-  },
-  {
-    label: "FFF",
-    description: "beforeinput/input insertText on iframe contenteditable",
-    run: () => dispatchInsertEvents(getDocsContentEditableTarget(), "FFF ", "insertText")
-  },
-  {
-    label: "GGG",
-    description: "keydown/keypress/input/keyup on iframe contenteditable",
-    run: () => dispatchKeyboardTyping(getDocsContentEditableTarget(), "GGG ")
-  },
-  {
-    label: "HHH",
-    description: "beforeinput/input insertFromPaste on iframe contenteditable",
-    run: () => dispatchInsertEvents(getDocsContentEditableTarget(), "HHH ", "insertFromPaste")
-  }
-];
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   void handleMessage(message as DripwriterMessage).then(sendResponse);
@@ -252,6 +167,12 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
     // document that rejects our input never shows a fake progress percentage.
     setStatus(true, "Checking Google Docs...");
 
+    const harness = selectHarness({
+      onFirstWrite: () => setStatus(true, "Typing..."),
+      isCancelled: () => run.cancelled || activeRun !== run,
+      betweenDeletes: () => wait(run, randomBetween(35, 85), true)
+    });
+
     const text = settings.text.replace(/\r\n/g, "\n");
 
     for (let index = 0; index < text.length; index += 1) {
@@ -271,9 +192,9 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
 
         if (detourWord) {
           setStatus(true, `Typing... then deleting "${detourWord}"`);
-          await typeLiteral(run, detourWord, settings, false);
+          await typeLiteral(run, harness, detourWord, settings, false);
           await wait(run, randomBetween(180, 320), true);
-          await deleteBackward(run, detourWord.length);
+          await harness.delete(detourWord.length);
           await wait(run, randomBetween(80, 160), true);
           setStatus(true, "Typing...");
         }
@@ -283,14 +204,14 @@ async function runDripwriter(run: RunState, settings: DripwriterSettings) {
         const typo = getNearbyTypo(char);
 
         if (typo) {
-          await insertText(run, typo);
+          await harness.insert(typo);
           await wait(run, charDelay(typo, settings) * 0.8, true);
-          await deleteBackward(run, 1);
+          await harness.delete(1);
           await wait(run, charDelay(char, settings) * 0.45, true);
         }
       }
 
-      const consumed = await insertText(run, char, text.slice(index + 1));
+      const consumed = await harness.insert(char, text.slice(index + 1));
       await wait(run, charDelay(char, settings), true);
 
       // On builds that reject lone whitespace it was pasted together with the
@@ -357,6 +278,21 @@ async function runTypingDiagnostics(run: RunState) {
     const detail = error instanceof Error ? error.message : "Diagnostics failed.";
     setStatus(false, detail);
     run.onSettled?.({ ok: false, error: detail });
+  }
+}
+
+async function runCountdown(run: RunState) {
+  await runCountdownWithPrefix(run, "Starting to type");
+}
+
+async function runCountdownWithPrefix(run: RunState, prefix: string) {
+  for (const step of [3, 2, 1]) {
+    if (run.cancelled || activeRun !== run) {
+      return;
+    }
+
+    setStatus(true, `${prefix} in ${step}...`);
+    await wait(run, 1000, false);
   }
 }
 
@@ -481,6 +417,7 @@ function pickDetourWord(text: string, index: number) {
 
 async function typeLiteral(
   run: RunState,
+  harness: Harness,
   text: string,
   settings: DripwriterSettings,
   allowMistakes: boolean
@@ -494,477 +431,14 @@ async function typeLiteral(
       const typo = getNearbyTypo(char);
 
       if (typo) {
-        await insertText(run, typo);
+        await harness.insert(typo);
         await wait(run, charDelay(typo, settings) * 0.8, true);
-        await deleteBackward(run, 1);
+        await harness.delete(1);
       }
     }
 
-    await insertText(run, char);
+    await harness.insert(char);
     await wait(run, charDelay(char, settings), true);
-  }
-}
-
-/**
- * Insertion methods, ordered most- to least-likely to be honoured.
- *
- * None of these can be trusted to report success: `execCommand` returns false on
- * Docs' editing host, and dispatchEvent returns true for "an event was
- * dispatched", not "text was inserted". Every attempt is therefore verified
- * against the DOM by `didCaretAdvance`.
- */
-const INSERT_METHODS: DocsMethod[] = [
-  // Measured: Docs applies this synchronously (caret moves before the call
-  // returns) and it is the only method that handles lone whitespace, so it is
-  // tried first — when it works, verification costs nothing.
-  {
-    label: "beforeinput",
-    apply: (target, text) => void dispatchInsertEvents(target.element, text, "insertText")
-  },
-  // Measured: applied asynchronously (~30ms) and silently no-ops on a lone
-  // space, but works on Docs builds that ignore beforeinput entirely.
-  {
-    label: "paste",
-    apply: (target, text) => void dispatchDocsPaste(target.element, text)
-  },
-  {
-    label: "paste-bubbling",
-    apply: (target, text) =>
-      void dispatchDocsPaste(target.element, text, { bubbles: true, cancelable: true })
-  },
-  // The builds that ignore beforeinput run a legacy keyCode-based keydown
-  // pipeline (the same channel that honors Backspace). Synthetic keydowns with a
-  // real keyCode handle lone whitespace there, where paste drops it. Falls back
-  // to the paired-whitespace path when even this is ignored.
-  {
-    label: "keyboard",
-    apply: (target, text) => void dispatchKeyboardTyping(target.element, text)
-  },
-  // Returns false on Docs' editing host in current Chrome; kept as a backstop
-  // for older builds only.
-  {
-    label: "execCommand",
-    apply: (target, text) => void tryExecInsert(target.doc, text)
-  }
-];
-
-/**
- * Deletion is a separate capability from insertion: Docs honours a synthetic
- * keydown Backspace but ignores a bare `beforeinput` with deleteContentBackward,
- * so a build can accept our text and still refuse our corrections.
- */
-const DELETE_METHODS: DocsMethod[] = [
-  {
-    label: "backspace-key",
-    apply: (target) => void dispatchBackspace(target.element)
-  },
-  {
-    label: "execCommand-delete",
-    apply: (target) => void tryExecDelete(target.doc)
-  }
-];
-
-/**
- * The document text is painted to a <canvas>, so inserted characters never appear
- * in the DOM and cannot be counted there. The caret, however, IS a DOM element —
- * and it advances only when Docs actually applies an edit. That makes it the one
- * reliable proof-of-insertion signal in canvas-rendered Docs.
- *
- * Only the local caret blinks, which is what distinguishes it from collaborator
- * carets in a shared document.
- */
-const LOCAL_CARET_CLASS = "docs-text-ui-cursor-blink";
-
-function getCaretSignature(): string {
-  return buildCaretSignature(
-    Array.from(document.querySelectorAll<HTMLElement>(".kix-cursor")).map((caret) => ({
-      isLocal: caret.classList.contains(LOCAL_CARET_CLASS),
-      transform: window.getComputedStyle(caret).transform
-    }))
-  );
-}
-
-/**
- * Resolves true as soon as the caret moves, false if it never does.
- *
- * Deliberately NOT requestAnimationFrame-based: rAF does not fire in a
- * backgrounded tab, and this extension holds a wake lock precisely so it can
- * keep typing while the tab is in the background.
- *
- * The synchronous first check matters — `beforeinput` moves the caret before
- * dispatch returns, so the common path never waits on a timer at all.
- */
-async function didCaretAdvance(before: string, timeoutMs = 400): Promise<boolean> {
-  return waitForChange({
-    read: getCaretSignature,
-    before,
-    timeoutMs,
-    now: () => performance.now(),
-    sleep: (ms) =>
-      new Promise<void>((resolve) => {
-        window.setTimeout(resolve, ms);
-      })
-  });
-}
-
-/** Applies a method, then resolves true only if the caret actually moved. */
-async function attemptMutation(method: DocsMethod, target: DocsTarget, text: string) {
-  const before = getCaretSignature();
-
-  try {
-    method.apply(target, text);
-  } catch {
-    return false;
-  }
-
-  return didCaretAdvance(before);
-}
-
-/**
- * Inserts a single character (or, for whitespace, possibly whitespace plus the
- * next character) and verifies it landed.
- *
- * @returns the number of FOLLOWING characters that were consumed along with the
- *   whitespace (they already landed in the document), so the caller can skip
- *   them; 0 when only `text` was inserted.
- */
-async function insertText(run: RunState, text: string, remainingAfter?: string): Promise<number> {
-  const target = ensureEditorTarget(run);
-
-  if (!target) {
-    throw new Error("The Google Docs cursor was lost. Click back into the document and retry.");
-  }
-
-  const isWhitespace = /^\s+$/.test(text);
-  const locked = isWhitespace ? run.spaceMethod : run.textMethod;
-
-  // Once this build has proven it only accepts whitespace paired with text, the
-  // single-character cascade is a known dead end — skip it to avoid 2s of failed
-  // verification per space.
-  let winner: DocsMethod | null = null;
-  let consumed = 0;
-
-  if (!(isWhitespace && run.whitespaceNeedsPairing)) {
-    winner = await cascadeUntilVerified({
-      methods: INSERT_METHODS,
-      locked,
-      target,
-      text,
-      attempt: attemptMutation
-    });
-  }
-
-  // Lone whitespace is rejected on builds that ignore beforeinput: paste drops
-  // whitespace-only content and nothing else applies. Paste it together with the
-  // following text instead — non-whitespace content is applied — and let the
-  // caller skip the characters that landed with it. The pair is text-shaped
-  // content, so the method already proven for text on this build is tried first.
-  if (!winner && isWhitespace && remainingAfter !== undefined) {
-    // The direct cascade above just failed for whitespace, independent of
-    // whether pairing succeeds below — no need to keep re-attempting it (and
-    // eating its ~2s of failed verification) for the rest of this run.
-    run.whitespaceNeedsPairing = true;
-
-    const suffix = buildWhitespacePairSuffix(remainingAfter);
-
-    if (suffix !== null) {
-      winner = await cascadeUntilVerified({
-        methods: INSERT_METHODS,
-        locked: run.textMethod,
-        target,
-        text: text + suffix,
-        attempt: attemptMutation
-      });
-
-      if (winner) {
-        consumed = suffix.length;
-      }
-    }
-  }
-
-  // Nothing works. If this is a lone whitespace character that simply had no
-  // non-whitespace character to pair with — trailing whitespace, or a
-  // whitespace run longer than buildWhitespacePairSuffix's maxLength — on a
-  // build that's already proven it accepts our writes, skip it instead of
-  // aborting the run: Docs is fine, this one character just isn't
-  // representable on this build.
-  if (!winner) {
-    if (isWhitespace && run.provenWriteable) {
-      return consumed;
-    }
-
-    throw new Error(run.provenWriteable ? DOCS_STOPPED_MESSAGE : DOCS_REJECTED_MESSAGE);
-  }
-
-  // A paired paste is a text-shaped insert (contains a printable character) and
-  // says nothing about how this build handles a LONE space, so it must not be
-  // cached as spaceMethod.
-  if (isWhitespace && consumed === 0) {
-    run.spaceMethod = winner;
-  } else if (!isWhitespace) {
-    run.textMethod = winner;
-  }
-
-  // Only now is it honest to show typing progress: a character has provably landed.
-  if (!run.provenWriteable) {
-    run.provenWriteable = true;
-    setStatus(true, "Typing...");
-  }
-
-  return consumed;
-}
-
-async function deleteBackward(run: RunState, count: number) {
-  for (let index = 0; index < count; index += 1) {
-    if (run.cancelled || activeRun !== run) {
-      return;
-    }
-
-    const target = ensureEditorTarget(run);
-
-    if (!target) {
-      throw new Error("The Google Docs cursor was lost while deleting.");
-    }
-
-    // Same trap as insertion: dispatchBackspace returns true for "an event was
-    // dispatched". An unverified delete leaves injected typos in the document.
-    const winner = await cascadeUntilVerified({
-      methods: DELETE_METHODS,
-      locked: run.deleteMethod,
-      target,
-      text: "",
-      attempt: attemptMutation
-    });
-
-    if (!winner) {
-      throw new Error(DELETE_REJECTED_MESSAGE);
-    }
-
-    run.deleteMethod = winner;
-    await wait(run, randomBetween(35, 85), true);
-  }
-}
-
-function ensureEditorTarget(run: RunState): DocsTarget | null {
-  const target = findDocsTarget();
-
-  if (target) {
-    target.element.focus({ preventScroll: true });
-    return target;
-  }
-
-  return null;
-}
-
-async function runCountdown(run: RunState) {
-  await runCountdownWithPrefix(run, "Starting to type");
-}
-
-async function runCountdownWithPrefix(run: RunState, prefix: string) {
-  for (const step of [3, 2, 1]) {
-    if (run.cancelled || activeRun !== run) {
-      return;
-    }
-
-    setStatus(true, `${prefix} in ${step}...`);
-    await wait(run, 1000, false);
-  }
-}
-
-function findDocsTarget(): DocsTarget | null {
-  const doc = getDocsIframeDocument();
-  const element = getDocsContentEditableTarget();
-
-  if (doc && element) {
-    return { doc, element };
-  }
-
-  return null;
-}
-
-function tryExecDelete(doc: Document) {
-  try {
-    return doc.execCommand("delete");
-  } catch {
-    return false;
-  }
-}
-
-function tryExecInsert(doc: Document, text: string) {
-  try {
-    return doc.execCommand("insertText", false, text);
-  } catch {
-    return false;
-  }
-}
-
-function dispatchBackspace(element: HTMLElement | null) {
-  if (!element) {
-    return false;
-  }
-
-  try {
-    element.focus({ preventScroll: true });
-
-    element.dispatchEvent(
-      new KeyboardEvent("keydown", {
-        key: "Backspace",
-        code: "Backspace",
-        keyCode: 8,
-        which: 8,
-        bubbles: true
-      })
-    );
-    element.dispatchEvent(
-      new InputEvent("beforeinput", {
-        bubbles: true,
-        cancelable: true,
-        inputType: "deleteContentBackward"
-      })
-    );
-    element.dispatchEvent(
-      new InputEvent("input", {
-        bubbles: true,
-        inputType: "deleteContentBackward"
-      })
-    );
-    element.dispatchEvent(
-      new KeyboardEvent("keyup", {
-        key: "Backspace",
-        code: "Backspace",
-        keyCode: 8,
-        which: 8,
-        bubbles: true
-      })
-    );
-
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function getDocsIframeDocument() {
-  const iframe = document.querySelector<HTMLIFrameElement>("iframe.docs-texteventtarget-iframe");
-  return iframe?.contentDocument ?? null;
-}
-
-function getDocsContentEditableTarget() {
-  return getDocsIframeDocument()?.querySelector<HTMLElement>("[contenteditable=true]") ?? null;
-}
-
-function getDocsActiveElementTarget() {
-  const activeElement = getDocsIframeDocument()?.activeElement;
-  return activeElement instanceof HTMLElement ? activeElement : null;
-}
-
-function dispatchDocsPaste(
-  element: HTMLElement | null,
-  text: string,
-  options: Pick<ClipboardEventInit, "bubbles" | "cancelable"> = {}
-) {
-  try {
-    if (!element) {
-      return false;
-    }
-
-    const data = new DataTransfer();
-    data.setData("text/plain", text);
-
-    const pasteEvent = new ClipboardEvent("paste", { ...options, clipboardData: data });
-    pasteEvent.clipboardData?.setData("text/plain", text);
-
-    element.dispatchEvent(pasteEvent);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function dispatchInsertEvents(
-  element: HTMLElement | null,
-  text: string,
-  inputType: "insertText" | "insertFromPaste"
-) {
-  if (!element) {
-    return false;
-  }
-
-  try {
-    element.focus({ preventScroll: true });
-    element.dispatchEvent(
-      new InputEvent("beforeinput", {
-        bubbles: true,
-        cancelable: true,
-        data: text,
-        inputType
-      })
-    );
-    element.dispatchEvent(
-      new InputEvent("input", {
-        bubbles: true,
-        data: text,
-        inputType
-      })
-    );
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function dispatchKeyboardTyping(element: HTMLElement | null, text: string) {
-  if (!element) {
-    return false;
-  }
-
-  try {
-    element.focus({ preventScroll: true });
-
-    for (const char of text) {
-      const code = /^[A-Z]$/.test(char) ? `Key${char}` : char === " " ? "Space" : "";
-      // Docs' keydown pipeline is legacy (keyCode-based) on the builds that
-      // ignore beforeinput: a synthetic event whose keyCode reads 0 is dropped.
-      // The same channel is already proven to work for Backspace (keyCode 8,
-      // see dispatchBackspace), so insertion keys carry their keyCode too.
-      const keyCode = char.length === 1 ? char.charCodeAt(0) : 0;
-
-      element.dispatchEvent(
-        new KeyboardEvent("keydown", { key: char, code, keyCode, which: keyCode, bubbles: true })
-      );
-      element.dispatchEvent(
-        new KeyboardEvent("keypress", {
-          key: char,
-          code,
-          keyCode,
-          which: keyCode,
-          charCode: keyCode,
-          bubbles: true
-        })
-      );
-      element.dispatchEvent(
-        new InputEvent("beforeinput", {
-          bubbles: true,
-          cancelable: true,
-          data: char,
-          inputType: "insertText"
-        })
-      );
-      element.dispatchEvent(
-        new InputEvent("input", {
-          bubbles: true,
-          data: char,
-          inputType: "insertText"
-        })
-      );
-      element.dispatchEvent(
-        new KeyboardEvent("keyup", { key: char, code, keyCode, which: keyCode, bubbles: true })
-      );
-    }
-
-    return true;
-  } catch {
-    return false;
   }
 }
 
