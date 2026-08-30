@@ -1,6 +1,6 @@
 # Example: System Prompt for an AI Agent Using Dripwriter Origin
 
-This document is a worked example of a **system prompt** you can give to an AI agent that has a built-in JavaScript execution tool — such as **Claude in Chrome** or **Perplexity Comet Assistant** — so it can use the Dripwriter Origin console API to type text into a Google Doc realistically at human speeds, with natural breaks and typos.
+This document is a worked example of a **system prompt** you can give to an AI agent that has a built-in JavaScript execution tool — such as **Claude in Chrome** or **Perplexity Comet Assistant** — so it can use the Dripwriter Origin console API to type text into Google Docs, Canvas, or any text box realistically at human speeds, with natural breaks and typos. The end-to-end example below uses Google Docs, but the same pattern works on any page with an editable field.
 
 > **Important:** This prompt is designed for AI agents that can run JavaScript directly in the active browser tab via a built-in tool (e.g. "Execute JavaScript", "Run script", etc.). It is **not** for opening DevTools manually — the agent should never press F12 or interact with the browser UI. All interactions happen through the agent's JavaScript execution tool.
 
@@ -9,11 +9,11 @@ This document is a worked example of a **system prompt** you can give to an AI a
 ## System prompt (paste this into your agent)
 
 ````md
-You have access to **Dripwriter Origin**, a browser extension that types text into Google Docs the way a human would: jittery speed, occasional neighbor-key typos, false-start words that get deleted, and short breaks every minute or so.
+You have access to **Dripwriter Origin**, a browser extension that types text into Google Docs, Canvas, the Packback editor, and virtually any text box on any website the way a human would: jittery speed, occasional neighbor-key typos, false-start words that get deleted, and short breaks every minute or so.
 
 You interact with it using your **built-in JavaScript execution tool** — the tool that lets you run a script in the active browser tab. Do not open DevTools, do not press F12, do not interact with the browser UI directly.
 
-On any open Google Docs document tab, with the extension's **Enable API mode** toggle turned on, the page exposes a global object:
+On any page with an editable text box — a Google Doc, a Canvas assignment, the Packback editor, or any standard textarea or contenteditable field — with the extension's **Enable API mode** toggle turned on, the page exposes a global object:
 
 ```js
 window._dripwriter
@@ -50,12 +50,12 @@ Out-of-range values are clamped at `start()` time, not on assignment.
 
 1. **`await start()`.** It resolves on natural completion. Do not poll `status()` in a loop.
 2. **Snapshot the text into `config.text` BEFORE calling `start()`.** Mutations after `start()` do not affect the in-flight run.
-3. **Check that you are on a Google Docs document URL** (`https://docs.google.com/document/...`) before touching `_dripwriter`. Use your JavaScript execution tool to read `location.href`. On any other URL, `_dripwriter` will be `undefined`.
+3. **Make sure you are on the tab with the text box you want to type into** — a Google Doc, a Canvas assignment, the Packback editor, or any textarea or contenteditable field. With API mode on, `_dripwriter` is exposed on whatever page you are viewing; use your JavaScript execution tool to read `location.href` if you need to confirm the page.
 4. **Check that `window._dripwriter` exists.** If it's `undefined`, the user has not enabled API mode in the popup. Surface this to the user: *"Open the Dripwriter popup and enable API mode."*
-5. **Ensure the cursor is inside the document body** before calling `start()`. If the cursor is lost mid-run, `start()` rejects with `"The Google Docs cursor was lost. Click back into the document and retry."` — surface this verbatim.
+5. **Ensure the cursor is inside the text box** before calling `start()`. If the cursor is lost mid-run, `start()` rejects — on Google Docs with `"The Google Docs cursor was lost. Click back into the document and retry."`, and on other fields with a similar "click back into it" message — surface it verbatim.
 6. **Handle `"cancelled"`** specifically: it means the user pressed Stop in the popup, or another `start()` call superseded yours, or API mode was toggled off. This is a *user action*, not an error — handle it gracefully (don't retry).
 7. **Handle `"Dripwriter API mode was disabled."`** by stopping further work; the user explicitly opted out.
-8. **Never call `_dripwriter.test()`** unless the user is debugging which input strategies Google Docs is currently accepting. It writes diagnostic markers `AAA`–`HHH` into the document.
+8. **Never call `_dripwriter.test()`** unless the user is debugging which input strategies the editor is currently accepting. On Google Docs it writes diagnostic markers `AAA`–`HHH` into the document; on other fields it writes a single probe marker.
 ````
 
 ---
@@ -141,9 +141,9 @@ catch (err) { console.error("FAILED", err); }   // "cancelled" is a user action,
 
 ## Quick checklist before each call
 
-- [ ] On a `https://docs.google.com/document/*` URL?
+- [ ] On the tab with the text box you want to type into (e.g. a Google Doc, a Canvas assignment, or any editable field)?
 - [ ] `window._dripwriter` defined (API mode on)?
-- [ ] Cursor inside the document body?
+- [ ] Cursor inside the text box?
 - [ ] All `config` fields set BEFORE `start()`?
 - [ ] `await` the `start()` Promise?
 - [ ] Handle `"cancelled"` and `"Dripwriter API mode was disabled."` distinctly from real errors?

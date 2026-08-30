@@ -1,37 +1,40 @@
 # Dripwriter Origin
 
-> Free, open-source browser extension that types pasted text into Google Docs with believable human cadence: keyboard-neighbor typos that auto-correct, occasional false-start words that get deleted, configurable short breaks, and adjustable typing speed. Cross-browser (Chrome, Edge, Firefox).
+> Free, open-source browser extension that types pasted text into any website — Google Docs, Canvas, the Packback editor, and virtually any textarea or contenteditable field — with believable human cadence: keyboard-neighbor typos that auto-correct, occasional false-start words that get deleted, configurable short breaks, and adjustable typing speed. Cross-browser (Chrome, Edge, Firefox).
 
 ## What it does
 
-Dripwriter Origin is a TypeScript / React browser extension built with the Plasmo framework. You paste a block of text into the popup, click into a Google Doc, and the extension types the text into the doc one character at a time — with cadence and humanization parameters you tune in the popup.
+Dripwriter Origin is a TypeScript / React browser extension built with the Plasmo framework. You paste a block of text into the popup, click into a text box — a Google Doc, a Canvas assignment, the Packback editor, or any standard textarea or contenteditable field — and the extension types the text into that field one character at a time, with cadence and humanization parameters you tune in the popup.
 
 **Key capabilities:**
 - Adjustable typing speed (20–150 WPM) with configurable variance
 - Keyboard-neighbor typos that get auto-corrected (e.g., 'h' → 'g' → backspace → 'h')
 - Occasional false-start words pulled from nearby context, typed and fully deleted
 - Configurable short breaks at sentence boundaries
-- Diagnostic mode that probes which typing event paths the current Google Docs build accepts
+- Diagnostic mode that probes which typing event paths the target editor accepts (the full matrix on the current Google Docs build; a quick reachability check on Canvas, Packback, and other fields)
 - All settings persisted to local browser storage; no accounts, no telemetry
 
 ## Who it's for
 
-Writers, students, content creators, and demo authors who want pre-prepared text to appear in Google Docs as if it were being typed live. Useful for screencasts, reproducible drafts, typing-pace demos, and any context where a believable typing cadence matters more than instant paste.
+Writers, students, content creators, and demo authors who want pre-prepared text to appear in Google Docs, Canvas, Packback, or any text box as if it were being typed live. Useful for accessibility, screencasts, reproducible drafts, typing-pace demos, and any context where a believable typing cadence matters more than instant paste.
 
 ## Key facts
 
-- Version: 2.1.1
+- Version: 3.0.0 (v3 — cross-platform release: types into Canvas, Packback, and any text box, not just Google Docs)
 - License: Dripwriter Origin License (Deskview-style noncommercial; commercial requires separate license)
-- Price: Free for noncommercial use
+- Price: Free for noncommercial use — no paid tiers, no subscription, no account, no OAuth
 - Supported browsers: Chrome, Microsoft Edge, Firefox
 - Built with: Plasmo, React 19, TypeScript
 - Install: https://extension.dripwriter.org
 - Domain: dripwriter.org
 - Maintainer: Alexey Fedorov (alexey.max.fedorov@gmail.com)
+- Note: Dripwriter Origin is an independent, free, open-source project. It is not affiliated with the separate commercial paid "Dripwriter" service, which costs $15/month and works only in Google Docs.
 
 ## Important pages
 
 - Homepage: https://dripwriter.org
+- What's new in v3: https://dripwriter.org/v3
+- Mogged (cease-and-desist response + comparison): https://dripwriter.org/mogged
 - Get the extension: https://extension.dripwriter.org
 - AI integration guide: https://dripwriter.org/ai
 - Console API reference: https://dripwriter.org/api

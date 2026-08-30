@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Dripwriter Origin — Free human typing extension for Google Docs";
+export const alt = "Dripwriter Origin — Free human typing extension for Google Docs, Canvas & any website";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -27,7 +27,7 @@ export default function OgImage() {
           Dripwriter Origin
         </div>
         <div style={{ fontSize: 40, color: "#a0a0a0", marginTop: 16 }}>
-          Type into Google Docs like a human.
+          Type into any website like a human.
         </div>
       </div>
     ),

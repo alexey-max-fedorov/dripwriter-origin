@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const sections = [
   {
     heading: "Scope",
-    body: "This license covers the original source code of the Dripwriter Origin browser extension — the files authored by the licensor in this repository. It does not cover fonts (subject to their own respective licenses), Google Docs (a product of Google LLC governed by Google's terms), or the Plasmo framework and its subdependencies (independent open-source projects distributed under their own licenses). Those third-party components remain under their own terms; only the licensor's original code is covered here."
+    body: "This license covers the original source code of the Dripwriter Origin browser extension — the files authored by the licensor in this repository. It does not cover fonts (subject to their own respective licenses), the websites you type into (such as Google Docs, Canvas, or Packback, each governed by its own operator's terms), or the Plasmo framework and its subdependencies (independent open-source projects distributed under their own licenses). Those third-party components and services remain under their own terms; only the licensor's original code is covered here."
   },
   {
     heading: "Acceptance",

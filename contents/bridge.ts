@@ -13,7 +13,8 @@ import {
 } from "../types";
 
 export const config: PlasmoCSConfig = {
-  matches: ["https://docs.google.com/document/*"],
+  matches: ["<all_urls>"],
+  all_frames: true,
   run_at: "document_idle",
   world: "MAIN"
 };
@@ -38,7 +39,7 @@ const pending = new Map<string, {
   reject: (error: Error) => void;
 }>();
 
-export const VERSION = "2.2.1";
+export const VERSION = "3.0.0";
 
 let apiVersion = VERSION;
 

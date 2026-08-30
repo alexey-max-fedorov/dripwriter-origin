@@ -35,7 +35,7 @@ const features = [
   {
     icon: Stethoscope,
     title: "Diagnostics mode",
-    desc: "Run a one-shot probe to see which typing event paths your Google Docs build accepts — handy when Docs ships changes."
+    desc: "Run a one-shot probe to confirm the extension can reach the text box you're in — the full editor matrix on Google Docs, a quick reachability check on Canvas, Packback, and any other field."
   },
   {
     icon: ShieldCheck,

@@ -3,7 +3,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 const faqs = [
   {
     q: "What is Dripwriter Origin?",
-    a: "Dripwriter Origin is a free, open-source browser extension that types pasted text into Google Docs with adjustable speed, keyboard-neighbor typos that auto-correct, occasional false-start words, and configurable short breaks. The result reads like a person typing live, not a script pasting in one shot."
+    a: "Dripwriter Origin is a free, open-source browser extension that types pasted text into Google Docs, Canvas, the Packback editor, and virtually any text box on any website — with adjustable speed, keyboard-neighbor typos that auto-correct, occasional false-start words, and configurable short breaks. The result reads like a person typing live, not a script pasting in one shot."
   },
   {
     q: "Is Dripwriter Origin free?",
@@ -15,15 +15,15 @@ const faqs = [
   },
   {
     q: "Can I use Dripwriter Origin on a school or work network?",
-    a: "Dripwriter Origin runs entirely inside your browser with no external servers to call and no telemetry, so there is nothing for a network filter to block once the extension is installed. If your browser can open the extension store and your Google Doc, Dripwriter Origin works."
+    a: "Dripwriter Origin runs entirely inside your browser with no external servers to call and no telemetry, so there is nothing for a network filter to block once the extension is installed. If your browser can open the extension store and the page you're typing into — a Google Doc, a Canvas assignment, or any text box — Dripwriter Origin works."
   },
   {
     q: "Does Dripwriter Origin work with AI like Claude?",
-    a: "Yes. With API mode enabled, Dripwriter Origin exposes a window._dripwriter API on Google Docs tabs so an AI agent such as Claude can drive the typing engine. See the setup guide at /ai."
+    a: "Yes. With API mode enabled, Dripwriter Origin exposes a window._dripwriter API on any site you're typing into — Google Docs, Canvas, and beyond — so an AI agent such as Claude can drive the typing engine. See the setup guide at /ai."
   },
   {
     q: "Does Dripwriter Origin work in Microsoft Word?",
-    a: "Not today. Dripwriter Origin is built specifically for Google Docs, where its humanized typing engine is tuned to the Docs editor. Microsoft Word support is not currently available."
+    a: "It works in any web-based text box, so Microsoft Word on the web (the contenteditable editor at office.com) works. Native desktop Word does not, because it isn't a web page and has no text field the extension can reach. Google Docs remains the most polished experience, but Canvas, Packback, and most standard textareas and contenteditable fields work too."
   }
 ];
 
@@ -34,7 +34,7 @@ export function FAQ() {
         <SectionHeading
           eyebrow="FAQ"
           title="Questions about Dripwriter Origin, answered."
-          subtitle="Free, cross-browser, and built for Google Docs."
+          subtitle="Free, cross-browser, and built for Google Docs, Canvas, and any text box."
         />
         <div className="mt-16 divide-y divide-[#1a1a1a] border-t border-[#1a1a1a]">
           {faqs.map((f) => (

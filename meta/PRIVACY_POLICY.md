@@ -1,6 +1,6 @@
 # Privacy Policy — Dripwriter Origin
 
-**Last updated: May 14, 2026**
+**Last updated: August 29, 2026**
 
 ## No Data Collection
 
@@ -13,7 +13,7 @@ Dripwriter Origin does not collect, transmit, store, or share any personal data,
 
 ## What the Extension Can See
 
-The extension's content script runs on `docs.google.com` only, as declared in the manifest. It reads the text you provide in the extension popup and simulates typing keystrokes into the active Google Doc. It does not read, log, or transmit the contents of your document.
+So it can type into whatever text box you're working in — a Google Doc, a Canvas assignment, the Packback editor, or any standard textarea or contenteditable field — the extension's content script runs on the page you're actively viewing. It reads only the text you provide in the extension popup and simulates typing keystrokes into the field you've clicked into. It does not read, log, or transmit the contents of that page, your document, or your browsing activity, and it never sends anything to any server.
 
 ## Disclaimer of Liability
 

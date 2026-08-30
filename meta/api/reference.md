@@ -38,7 +38,7 @@ Begins a typing run using a **snapshot** of `_dripwriter.config` as it is at the
 
 **Rejects with `Error` when:**
 - `config.text` is empty or whitespace-only — `"Add some text first."`
-- The Google Docs cursor is lost mid-run — `"The Google Docs cursor was lost. Click back into the document and retry."`
+- The cursor leaves the text box mid-run — on Google Docs, `"The Google Docs cursor was lost. Click back into the document and retry."`; on other fields, a similar "click back into it and press Start again" message
 - The run is cancelled (by `stop()`, by another `start()` call, by API mode being disabled, or by the popup's Stop button) — `"cancelled"`
 - API mode is disabled while the run is pending — `"Dripwriter API mode was disabled."`
 
@@ -58,9 +58,9 @@ Cancels the currently active run, if any.
 
 ## `_dripwriter.test(): Promise<void>`
 
-Runs the diagnostic matrix (the same flow as the popup's "Run Test" button). It dispatches 8 different input-event strategies into the document at ~900ms intervals, marked by three-letter labels (`AAA`, `BBB`, ..., `HHH`). Use it to identify which event types Google Docs is currently accepting.
+Runs the diagnostic matrix (the same flow as the popup's "Run Test" button). On Google Docs it dispatches 8 different input-event strategies into the document at ~900ms intervals, marked by three-letter labels (`AAA`, `BBB`, ..., `HHH`); use it to identify which event types Docs is currently accepting. On any other field there is no editor-build matrix to probe, so it runs a single verified insertion check instead.
 
-**Resolves when:** all 8 methods have been tried (about 10 seconds).
+**Resolves when:** the probe completes (up to ~10 seconds on Google Docs).
 
 **Rejects with `Error` when:** the run is cancelled or otherwise fails.
 

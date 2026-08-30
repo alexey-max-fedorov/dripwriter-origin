@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Check, Copy, ExternalLink } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { InstallButton } from "@/components/ui/InstallButton";
 
 // ─── logos ──────────────────────────────────────────────────────────────────
 
@@ -170,11 +171,11 @@ const SHORTCUT_URL =
 const SHORTCUT_NAME = "/dripwriter";
 
 const DRIPWRITER_PROMPT =
-  "You have access to **Dripwriter Origin**, a browser extension that types text into Google Docs the way a human would: jittery speed, occasional neighbor-key typos, false-start words that get deleted, and short breaks every minute or so.\n" +
+  "You have access to **Dripwriter Origin**, a browser extension that types text into Google Docs, Canvas, the Packback editor, and virtually any text box on any website the way a human would: jittery speed, occasional neighbor-key typos, false-start words that get deleted, and short breaks every minute or so.\n" +
   "\n" +
   "You interact with it using your **built-in JavaScript execution tool** — the tool that lets you run a script in the active browser tab. Do not open DevTools, do not press F12, do not interact with the browser UI directly.\n" +
   "\n" +
-  "On any open Google Docs document tab, with the extension's **Enable API mode** toggle turned on, the page exposes a global object:\n" +
+  "On any page with an editable text box — a Google Doc, a Canvas assignment, the Packback editor, or any standard textarea or contenteditable field — with the extension's **Enable API mode** toggle turned on, the page exposes a global object:\n" +
   "\n" +
   "```js\n" +
   "window._dripwriter\n" +
@@ -211,12 +212,12 @@ const DRIPWRITER_PROMPT =
   "\n" +
   "1. **`await start()`.** It resolves on natural completion. Do not poll `status()` in a loop.\n" +
   "2. **Snapshot the text into `config.text` BEFORE calling `start()`.** Mutations after `start()` do not affect the in-flight run.\n" +
-  "3. **Check that you are on a Google Docs document URL** (`https://docs.google.com/document/...`) before touching `_dripwriter`. Use your JavaScript execution tool to read `location.href`. On any other URL, `_dripwriter` will be `undefined`.\n" +
+  "3. **Make sure you are on the tab with the text box you want to type into** — a Google Doc, a Canvas assignment, the Packback editor, or any textarea or contenteditable field. With API mode on, `_dripwriter` is exposed on whatever page you are viewing; use your JavaScript execution tool to read `location.href` if you need to confirm the page.\n" +
   "4. **Check that `window._dripwriter` exists.** If it's `undefined`, the user has not enabled API mode in the popup. Surface this to the user: *\"Open the Dripwriter popup and enable API mode.\"*\n" +
-  "5. **Ensure the cursor is inside the document body** before calling `start()`. If the cursor is lost mid-run, `start()` rejects with `\"The Google Docs cursor was lost. Click back into the document and retry.\"` — surface this verbatim.\n" +
+  "5. **Ensure the cursor is inside the text box** before calling `start()`. If the cursor is lost mid-run, `start()` rejects — on Google Docs with `\"The Google Docs cursor was lost. Click back into the document and retry.\"`, and on other fields with a similar \"click back into it\" message — surface it to the user verbatim.\n" +
   "6. **Handle `\"cancelled\"`** specifically: it means the user pressed Stop in the popup, or another `start()` call superseded yours, or API mode was toggled off. This is a *user action*, not an error — handle it gracefully (don't retry).\n" +
   "7. **Handle `\"Dripwriter API mode was disabled.\"`** by stopping further work; the user explicitly opted out.\n" +
-  "8. **Never call `_dripwriter.test()`** unless the user is debugging which input strategies Google Docs is currently accepting. It writes diagnostic markers `AAA`–`HHH` into the document.";
+  "8. **Never call `_dripwriter.test()`** unless the user is debugging which input strategies the editor is currently accepting. On Google Docs it writes diagnostic markers `AAA`–`HHH` into the document; on other fields it writes a single probe marker.";
 
 const EXAMPLE_PROMPT =
   "/dripwriter\nUse dripwriter to type 2 sentences about what GDP is in the Part A Response box, then type 2 sentences about what checking accounts are in the Part B response box. Make sure to verify you click the cursor inside the Part B response box after Part A is done.";
@@ -249,7 +250,7 @@ export default function AiGuide() {
               <span className="text-[#c9a84c]">+ AI</span>
             </h1>
             <p className="text-[#a0a0a0] text-base sm:text-lg max-w-lg mx-auto leading-relaxed">
-              Let Claude type for you — human-like, straight into Google Docs.
+              Let Claude type for you — human-like, into Google Docs, Canvas, or any text box.
             </p>
           </div>
         </div>
@@ -258,17 +259,9 @@ export default function AiGuide() {
         <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 pb-28 flex flex-col gap-3">
           {/* ── step 1 ── */}
           <StepCard step="01" logo={<LogoDripwriter />} title="Install Dripwriter Origin">
-            <Instruction>Get the extension that powers human-like typing in Google Docs.</Instruction>
+            <Instruction>Get the extension that powers human-like typing in Google Docs, Canvas, and any text box.</Instruction>
             <div className="mt-4">
-              <a
-                href="https://extension.dripwriter.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#c9a84c] text-black text-sm font-semibold rounded-md hover:bg-[#d4b65e] transition-colors cursor-pointer"
-              >
-                Install Extension
-                <ExternalLink size={13} />
-              </a>
+              <InstallButton variant="primary" size="md" showArrow />
             </div>
           </StepCard>
 
@@ -311,7 +304,7 @@ export default function AiGuide() {
 
           {/* ── step 4 ── */}
           <StepCard step="04" logo={<LogoApi />} title="Enable API Mode">
-            <Instruction>Reload your Google Doc tab, open the Dripwriter Origin extension, scroll to the bottom, and toggle <strong className="text-white font-medium">Enable API mode</strong>.</Instruction>
+            <Instruction>Reload the tab you want to type into — a Google Doc, a Canvas assignment, or any text box — open the Dripwriter Origin extension, scroll to the bottom, and toggle <strong className="text-white font-medium">Enable API mode</strong>.</Instruction>
           </StepCard>
 
           {/* ── step 5 ── */}
