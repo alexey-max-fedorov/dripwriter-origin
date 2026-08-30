@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import V3Launch, { V3_FAQ } from "@/components/sections/V3Launch";
+import V3Launch from "@/components/sections/V3Launch";
+import { V3_FAQ } from "@/components/sections/v3-content";
 import { VERSION } from "@/lib/version";
 
 export const metadata: Metadata = {
