@@ -3,9 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Store, PlusCircle, Pin, PlayCircle } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Button } from "@/components/ui/Button";
-import { BrowserIcon } from "@/components/ui/BrowserIcon";
-import { useBrowser } from "@/lib/useBrowser";
+import { InstallButton } from "@/components/ui/InstallButton";
 
 const steps = [
   {
@@ -32,7 +30,6 @@ const steps = [
 
 export function InstallSteps() {
   const reduce = useReducedMotion();
-  const { browser, storeLabel } = useBrowser();
 
   return (
     <section id="install" className="py-24 lg:py-32 bg-[#0a0a0a]">
@@ -73,15 +70,7 @@ export function InstallSteps() {
           ))}
         </div>
         <div className="flex justify-center mt-14">
-          <Button
-            variant="primary"
-            size="lg"
-            href="https://extension.dripwriter.org"
-            external
-          >
-            <BrowserIcon browser={browser} size={18} />
-            Install from {storeLabel}
-          </Button>
+          <InstallButton variant="primary" size="lg" />
         </div>
       </div>
     </section>

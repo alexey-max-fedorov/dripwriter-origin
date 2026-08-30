@@ -1,17 +1,14 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { AnimatedText } from "@/components/ui/AnimatedText";
-import { BrowserIcon } from "@/components/ui/BrowserIcon";
+import { InstallButton } from "@/components/ui/InstallButton";
 import { VERSION_TAG } from "@/lib/version";
 import { MockGoogleDoc } from "@/components/ui/MockGoogleDoc";
-import { useBrowser } from "@/lib/useBrowser";
 
 export function Hero() {
   const reduce = useReducedMotion();
-  const { browser, storeLabel } = useBrowser();
 
   return (
     <section
@@ -58,10 +55,9 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-[#a0a0a0] text-base sm:text-lg leading-relaxed mb-10"
           >
-            Dripwriter Origin is a free browser extension that types your text into
-            Google Docs, Canvas, Packback, and virtually any text box one believable
-            keystroke at a time — with adjustable speed, keyboard-neighbor typos that
-            auto-correct, false-start words, and short breaks.
+            Paste your text. It types itself into Google Docs, Canvas, Packback, or any
+            text box — with real typos, natural pauses, and adjustable speed. Free and
+            open source.
           </motion.p>
 
           <motion.div
@@ -70,24 +66,9 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
           >
-            <Button
-              variant="primary"
-              size="lg"
-              href="https://extension.dripwriter.org"
-              external
-            >
-              <BrowserIcon browser={browser} size={18} />
-              Install on {storeLabel}
-              {browser === "chrome" && (
-                <svg focusable="false" width="21" height="21" viewBox="0 0 24 24" fill="currentColor" aria-label="Verified by Chrome Web Store">
-                  <path d="M23 11.99L20.56 9.2l.34-3.69-3.61-.82L15.4 1.5 12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 11.99l2.44 2.79-.34 3.7 3.61.82 1.89 3.2 3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69 2.44-2.8zm-3.95 1.48l-.56.65.08.85.18 1.95-1.9.43-.84.19-.44.74-.99 1.68-1.78-.77-.8-.34-.79.34-1.78.77-.99-1.67-.44-.74-.84-.19-1.9-.43.18-1.96.08-.85-.56-.65L3.67 12l1.29-1.48.56-.65-.09-.86-.18-1.94 1.9-.43.84-.19.44-.74.99-1.68 1.78.77.8.34.79-.34 1.78-.77.99 1.68.44.74.84.19 1.9.43-.18 1.95-.08.85.56.65 1.29 1.47-1.28 1.48z" />
-                  <path d="M10.09 13.75l-2.32-2.33-1.48 1.49 3.8 3.81 7.34-7.36-1.48-1.49z" />
-                </svg>
-              )}
-              <ArrowRight size={18} />
-            </Button>
-            <Button variant="outline" size="lg" href="#features">
-              See what it does
+            <InstallButton variant="primary" size="lg" showArrow />
+            <Button variant="outline" size="lg" href="/v3">
+              See what’s new in v3
             </Button>
           </motion.div>
         </div>

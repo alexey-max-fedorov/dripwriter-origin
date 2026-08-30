@@ -12,6 +12,7 @@ const productLinks: FooterLink[] = [
 
 const resourceLinks: FooterLink[] = [
   { label: "What's New — v3", href: "/v3", gold: true },
+  { label: "Mogged — the C&D", href: "/mogged" },
   { label: "Support", href: "https://github.com/alexey-max-fedorov/dripwriter-origin/issues", external: true },
   { label: "Dripwriter + AI", href: "/ai", gold: true }
 ];

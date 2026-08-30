@@ -1,0 +1,17 @@
+{
+  "enabledPlugins": {
+    "ui-ux-pro-max@ui-ux-pro-max-skill": false,
+    "swift-lsp@claude-plugins-official": false,
+    "supabase@claude-plugins-official": false,
+    "ics-calendar@ics-calendar-plugins": false,
+    "context7@claude-plugins-official": false,
+    "superpowers@claude-plugins-official": true,
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "vercel@claude-plugins-official": false,
+    "clangd-lsp@claude-plugins-official": false,
+    "marketing-skills@marketingskills": true,
+    "watch@claude-video": false
+  },
+  "autoMemoryEnabled": false
+}

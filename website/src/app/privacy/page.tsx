@@ -74,7 +74,7 @@ export default function PrivacyPage() {
           </h1>
 
           <p className="text-[#a0a0a0] text-base sm:text-lg leading-relaxed mb-12">
-            Last updated: May 14, 2026
+            Last updated: August 29, 2026
           </p>
 
           <p className="text-[#a0a0a0] text-sm leading-relaxed mb-12 italic">

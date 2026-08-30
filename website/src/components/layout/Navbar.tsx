@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { InstallButton } from "@/components/ui/InstallButton";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -77,9 +77,7 @@ export function Navbar() {
               {link.label}
             </a>
           ))}
-          <Button variant="primary" size="sm" href="https://extension.dripwriter.org" external>
-            Install Extension
-          </Button>
+          <InstallButton variant="primary" size="sm" />
         </div>
 
         <button
@@ -109,9 +107,7 @@ export function Navbar() {
                 {link.label}
               </a>
             ))}
-            <Button variant="primary" size="md" href="https://extension.dripwriter.org" external className="mt-2">
-              Install Extension
-            </Button>
+            <InstallButton variant="primary" size="md" className="mt-2" />
           </div>
         </div>
       )}

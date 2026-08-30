@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Check, Copy, ExternalLink } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { InstallButton } from "@/components/ui/InstallButton";
 
 // ─── logos ──────────────────────────────────────────────────────────────────
 
@@ -260,15 +261,7 @@ export default function AiGuide() {
           <StepCard step="01" logo={<LogoDripwriter />} title="Install Dripwriter Origin">
             <Instruction>Get the extension that powers human-like typing in Google Docs, Canvas, and any text box.</Instruction>
             <div className="mt-4">
-              <a
-                href="https://extension.dripwriter.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#c9a84c] text-black text-sm font-semibold rounded-md hover:bg-[#d4b65e] transition-colors cursor-pointer"
-              >
-                Install Extension
-                <ExternalLink size={13} />
-              </a>
+              <InstallButton variant="primary" size="md" showArrow />
             </div>
           </StepCard>
 

@@ -10,11 +10,12 @@ import {
   MotionConfig,
   type Variants
 } from "framer-motion";
-import { Check, X, ArrowRight, Globe, Layers, Boxes, ShieldCheck } from "lucide-react";
+import { Check, X, Globe, Layers, Boxes, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
+import { InstallButton } from "@/components/ui/InstallButton";
 import { MockCrossPlatform } from "@/components/ui/MockCrossPlatform";
 import { V3_FAQ } from "@/components/sections/v3-content";
 
@@ -208,10 +209,7 @@ export default function V3Launch() {
                 variants={fadeUp}
                 className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
               >
-                <Button variant="primary" size="lg" href="https://extension.dripwriter.org" external>
-                  Install the extension
-                  <ArrowRight size={18} />
-                </Button>
+                <InstallButton variant="primary" size="lg" showArrow />
                 <Button variant="outline" size="lg" href="#compare">
                   See how it compares
                 </Button>
@@ -427,10 +425,7 @@ export default function V3Launch() {
               Free, open-source, and cross-browser. No account, no OAuth, no subscription.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="primary" size="lg" href="https://extension.dripwriter.org" external>
-                Install Dripwriter Origin v3
-                <ArrowRight size={18} />
-              </Button>
+              <InstallButton variant="primary" size="lg" showArrow />
               <Button variant="outline" size="lg" href="https://github.com/alexey-max-fedorov/dripwriter-origin" external>
                 View the source
               </Button>

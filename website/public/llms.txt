@@ -34,6 +34,7 @@ Writers, students, content creators, and demo authors who want pre-prepared text
 
 - Homepage: https://dripwriter.org
 - What's new in v3: https://dripwriter.org/v3
+- Mogged (cease-and-desist response + comparison): https://dripwriter.org/mogged
 - Get the extension: https://extension.dripwriter.org
 - AI integration guide: https://dripwriter.org/ai
 - Console API reference: https://dripwriter.org/api

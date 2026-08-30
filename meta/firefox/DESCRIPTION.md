@@ -1,5 +1,14 @@
 Dripwriter Origin types your text into any website — Google Docs, Canvas, the Packback editor, and virtually any text box — with natural, human-like cadence: variable speed, realistic typos, false starts, and periodic breaks — so your writing looks and feels like it was typed by hand.
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**⭐️ FEATURED**
+
+FEATURED IN MANN BELLANI (`@mann.ascends`) AND ALEXEY FEDOROV (`@alexeyfedorov._`)'S
+VIDEO ('LARPSLAYER' SERIES): _HOW I MADE A FREE ALTERNATIVE TO DRIPWRITER_
+[instagram.com/reel/Dbz2SPnKwsx](https://www.instagram.com/reel/Dbz2SPnKwsx/)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **HOW IT WORKS**
 

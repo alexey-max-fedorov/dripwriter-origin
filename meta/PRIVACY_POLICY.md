@@ -1,6 +1,6 @@
 # Privacy Policy — Dripwriter Origin
 
-**Last updated: May 14, 2026**
+**Last updated: August 29, 2026**
 
 ## No Data Collection
 
