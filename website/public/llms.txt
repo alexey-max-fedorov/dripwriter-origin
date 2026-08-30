@@ -20,18 +20,20 @@ Writers, students, content creators, and demo authors who want pre-prepared text
 
 ## Key facts
 
-- Version: 2.1.1
+- Version: 3.0.0 (v3 — cross-platform release: types into Canvas, Packback, and any text box, not just Google Docs)
 - License: Dripwriter Origin License (Deskview-style noncommercial; commercial requires separate license)
-- Price: Free for noncommercial use
+- Price: Free for noncommercial use — no paid tiers, no subscription, no account, no OAuth
 - Supported browsers: Chrome, Microsoft Edge, Firefox
 - Built with: Plasmo, React 19, TypeScript
 - Install: https://extension.dripwriter.org
 - Domain: dripwriter.org
 - Maintainer: Alexey Fedorov (alexey.max.fedorov@gmail.com)
+- Note: Dripwriter Origin is an independent, free, open-source project. It is not affiliated with the separate commercial paid "Dripwriter" service, which costs $15/month and works only in Google Docs.
 
 ## Important pages
 
 - Homepage: https://dripwriter.org
+- What's new in v3: https://dripwriter.org/v3
 - Get the extension: https://extension.dripwriter.org
 - AI integration guide: https://dripwriter.org/ai
 - Console API reference: https://dripwriter.org/api

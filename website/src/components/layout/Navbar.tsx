@@ -35,22 +35,32 @@ export function Navbar() {
       )}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 group" aria-label="Dripwriter Origin home">
-          <Image
-            src="/logo.png"
-            alt=""
-            width={36}
-            height={36}
-            className="rounded-md"
-            priority
-          />
-          <span
-            className="text-xl font-semibold text-white group-hover:text-[#c9a84c] transition-colors"
+        <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-3 group" aria-label="Dripwriter Origin home">
+            <Image
+              src="/logo.png"
+              alt=""
+              width={36}
+              height={36}
+              className="rounded-md"
+              priority
+            />
+            <span
+              className="text-xl font-semibold text-white group-hover:text-[#c9a84c] transition-colors"
+              style={{ fontFamily: "var(--font-playfair-display)" }}
+            >
+              Dripwriter Origin
+            </span>
+          </Link>
+          <Link
+            href="/v3"
+            aria-label="Dripwriter Origin v3 — what's new"
+            className="text-xl font-semibold text-[#c9a84c] hover:text-[#e2c97e] transition-colors"
             style={{ fontFamily: "var(--font-playfair-display)" }}
           >
-            Dripwriter Origin
-          </span>
-        </Link>
+            v3
+          </Link>
+        </div>
 
         <div className="hidden lg:flex items-center gap-8">
           {NAV_LINKS.map((link) => (
