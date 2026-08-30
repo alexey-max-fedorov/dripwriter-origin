@@ -34,6 +34,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* /v3 slideshow: full-height sections snap into focus one at a time. The class
+   is toggled on <html> by the v3 page and skipped when the visitor prefers
+   reduced motion, so snapping never fights an accessibility preference. */
+html.v3-snap {
+  scroll-snap-type: y proximity;
+  scroll-padding-top: 5rem;
+}
+
 body {
   background-color: #000000;
   color: #ffffff;
