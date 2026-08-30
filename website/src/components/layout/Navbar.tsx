@@ -8,6 +8,7 @@ import { InstallButton } from "@/components/ui/InstallButton";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
+  { label: "V3", href: "/v3", gold: true },
   { label: "Features", href: "/#features" },
   { label: "Install", href: "/#install" },
   { label: "Support", href: "https://github.com/alexey-max-fedorov/dripwriter-origin/issues", external: true },
