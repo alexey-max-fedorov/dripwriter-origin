@@ -5,7 +5,7 @@ import { VERSION } from "@/lib/version";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Free Human Typing Extension for Google Docs, Canvas & Any Website",
+  title: "Dripwriter Origin — Free Human Typing Extension for Google Docs & Canvas",
   description:
     "Dripwriter Origin is a free, open-source browser extension that types your text into any website like a human — Google Docs, Canvas, Packback, and virtually any text box. Realistic typos, false starts, and short breaks. For Chrome, Edge & Firefox.",
   keywords: [
