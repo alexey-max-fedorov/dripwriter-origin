@@ -12,7 +12,7 @@ Built with [Plasmo](https://docs.plasmo.com/) + React + TypeScript.
 
 ## Brand Name Clarification
 
-**Dripwriter Origin** is an independent, open-source project created and maintained by Alexey Fedorov. It is **not affiliated with, endorsed by, or connected to** Dripwriter, LLC or the commercial service at dripwriter.com.
+**Dripwriter Origin** is an independent, noncommercial open-source project created and maintained by Alexey Fedorov. It is **not affiliated with, endorsed by, or connected to** Dripwriter, LLC or the commercial service at dripwriter.com.
 
 The **"Origin"** suffix follows established open-source naming convention (as in *uBlock* / *uBlock Origin*): it denotes an independent, community project distinct from any similarly named commercial product. Any reference to "Dripwriter" in this project describes that separate product solely for the purpose of identification and comparison.
 
