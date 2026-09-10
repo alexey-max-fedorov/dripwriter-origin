@@ -94,10 +94,18 @@ export class DefaultHarness implements Harness {
     return 0;
   }
 
-  async delete(count: number): Promise<void> {
+  /**
+   * Deletes backward one verified character at a time, up to `count`, and
+   * returns how many characters were PROVEN deleted. Deletion bails out (and
+   * stops early) once the run's cancellation signal fires, so the caller can
+   * still account for what actually happened.
+   */
+  async delete(count: number): Promise<number> {
+    let deleted = 0;
+
     for (let index = 0; index < count; index += 1) {
       if (this.deps.isCancelled?.()) {
-        return;
+        return deleted;
       }
 
       const target = this.ensureTarget();
@@ -115,8 +123,11 @@ export class DefaultHarness implements Harness {
       }
 
       this.deleteMethod = winner;
+      deleted += 1;
       await this.deps.betweenDeletes?.();
     }
+
+    return deleted;
   }
 }
 

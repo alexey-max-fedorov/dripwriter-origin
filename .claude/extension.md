@@ -20,12 +20,22 @@ Popup → content script via `chrome.tabs.sendMessage`:
 ```ts
 type DripwriterMessage =
   | { type: "START_DRIP"; payload: DripwriterSettings }
+  | { type: "RESUME_DRIP"; payload: { text: string } & Partial<DripwriterSettings> }
   | { type: "STOP_DRIP" }
   | { type: "RUN_DIAGNOSTICS" }
   | { type: "GET_STATUS" }
 ```
 
 Response is always `DripwriterResponse { ok, status, error? }`.
+
+### Stop / Resume
+
+`TypingStatus.resumable` is set when a stopped run kept enough state to continue.
+Stop preserves the verified commit position plus any temporary typo/detour
+characters still in the editor; `RESUME_DRIP` deletes those strays, re-verifies
+the committed prefix against the editor, and continues the run with its ORIGINAL
+settings. Start always means a fresh run and discards saved progress. Resume is
+popup-only — the console bridge contract stays start/stop/test/status.
 
 ## Settings
 

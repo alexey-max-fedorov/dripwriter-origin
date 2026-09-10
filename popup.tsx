@@ -66,6 +66,8 @@ function PopupView() {
     "Idle. Click into any text box, then press Start."
   );
   const [statusState, setStatusState] = useState<StatusState>("idle");
+  /** True when the active tab holds a stopped run that Resume can continue. */
+  const [resumable, setResumable] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [titleLen, setTitleLen] = useState(TITLE.length);
   const loaded = useRef(false);
@@ -206,6 +208,7 @@ function PopupView() {
     if (!response) return;
     setStatusDetail(response.status.detail);
     setStatusState(stateForStatus(response.status, "idle"));
+    setResumable(Boolean(response.status.resumable) && !response.status.running);
   }, [sendToActiveTab]);
 
   const onStart = useCallback(
@@ -223,6 +226,9 @@ function PopupView() {
         payload = { ...settings, breakMaxSeconds: settings.breakMinSeconds };
         setSettings(payload);
       }
+
+      // A fresh Start intentionally discards any saved resume progress.
+      setResumable(false);
 
       const response = await sendToActiveTab({ type: "START_DRIP", payload });
       if (!response) return;
@@ -242,15 +248,37 @@ function PopupView() {
     if (!response) {
       setStatusDetail("Stopped locally.");
       setStatusState("idle");
+      setResumable(false);
       return;
     }
     setStatusDetail(response.status.detail);
     setStatusState("idle");
+    setResumable(Boolean(response.status.resumable) && !response.status.running);
   }, [sendToActiveTab]);
+
+  const onResume = useCallback(async () => {
+    // The payload echoes the current settings so the content script can refuse
+    // to continue a run whose text or knobs changed after the Stop.
+    const response = await sendToActiveTab({ type: "RESUME_DRIP", payload: { ...settings } });
+    if (!response) return;
+
+    setStatusDetail(response.status.detail);
+    setStatusState(stateForStatus(response.status, "done"));
+
+    if (!response.status.resumable) {
+      setResumable(false);
+    }
+
+    if (response.ok) {
+      window.close();
+    }
+  }, [settings, sendToActiveTab]);
 
   const onDiagnostics = useCallback(async () => {
     const response = await sendToActiveTab({ type: "RUN_DIAGNOSTICS" });
     if (!response) return;
+    // Diagnostics move the caret themselves, so any saved progress is gone.
+    setResumable(false);
     setStatusDetail(response.status.detail);
     setStatusState(stateForStatus(response.status, "done"));
     if (response.ok) window.close();
@@ -332,6 +360,15 @@ function PopupView() {
           <button type="submit" className="button button--primary">
             Start
           </button>
+          {resumable && statusState !== "running" && (
+            <button
+              type="button"
+              className="button button--ghost"
+              onClick={() => void onResume()}
+            >
+              Resume
+            </button>
+          )}
           <button
             type="button"
             className="button button--ghost"
@@ -339,13 +376,15 @@ function PopupView() {
           >
             Run Test
           </button>
-          <button
-            type="button"
-            className="button button--ghost"
-            onClick={() => void onStop()}
-          >
-            Stop
-          </button>
+          {statusState === "running" && (
+            <button
+              type="button"
+              className="button button--ghost"
+              onClick={() => void onStop()}
+            >
+              Stop
+            </button>
+          )}
         </div>
       </form>
 
