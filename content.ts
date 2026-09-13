@@ -451,7 +451,7 @@ async function runDripwriter(
       // through `index` is committed and the resume point moves past it.
       haltPoint = index + 1;
 
-      if (index > 0 && index % 30 === 0) {
+      if (index > 0 && index % 5 === 0) {
         const progress = Math.round((index / text.length) * 100);
         setStatus(true, `Typing... ${progress}%`);
       }
