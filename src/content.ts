@@ -183,7 +183,7 @@ function startDrip(
  * an API consumer that wants the rest typed can simply call start() again.
  */
 function resumeDrip(
-  payload: { text: string } & Partial<DripwriterSettings> | undefined
+  payload: ({ text: string } & Partial<DripwriterSettings>) | undefined
 ): { ok: boolean; status: TypingStatus; error?: string } {
   if (activeRun) {
     setStatus(true, "Dripwriter is already typing.");
@@ -304,6 +304,7 @@ function getStatus(): TypingStatus {
   return currentStatus;
 }
 
+// `resumable` is intentionally excluded — only finalizeHaltedRun sets it directly.
 function setStatus(running: boolean, detail: string, failed = false) {
   currentStatus = { running, detail, failed };
 }

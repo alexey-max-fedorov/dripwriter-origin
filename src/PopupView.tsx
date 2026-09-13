@@ -267,6 +267,7 @@ export default function PopupView({ closeOnStart }: { closeOnStart?: boolean }) 
     if (!response) return;
     setResumable(false);
     setStatusDetail(response.status.detail);
+
     setStatusState(stateForStatus(response.status, "done"));
     if (response.ok && closeOnStart) window.close();
   }, [sendToActiveTab, closeOnStart]);
@@ -395,7 +396,7 @@ export default function PopupView({ closeOnStart }: { closeOnStart?: boolean }) 
           />
         </label>
         <p className="api-toggle__hint">
-          Exposes <code>window._dripwriter</code> in Google Docs tabs. Active immediately — no reload needed.
+          Exposes <code>window._dripwriter</code> on the active page. Active immediately — no reload needed.
         </p>
       </div>
     </main>

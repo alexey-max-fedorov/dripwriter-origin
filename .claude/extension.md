@@ -40,6 +40,10 @@ the committed prefix against the editor, and continues the run with its ORIGINAL
 settings. Start always means a fresh run and discards saved progress. Resume is
 popup-only — the console bridge contract stays start/stop/test/status.
 
+**Limitation:** Resume prefix verification only works on `default` and `word-online`
+harnesses (they read `textContent`). Google Docs uses a canvas renderer so the
+prefix cannot be verified — Resume assumes the document was not manually edited.
+
 ## Settings
 
 `DripwriterSettings` fields (all in `types.ts`):
