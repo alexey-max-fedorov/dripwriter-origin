@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { readEditableContent } from "../lib/harness/default.ts";
+import { readEditableContent } from "../src/lib/harness/default.ts";
 
 test("readEditableContent returns value for inputs and textContent for contenteditable", () => {
   const input = { tagName: "TEXTAREA", value: "hello" } as unknown as HTMLElement;

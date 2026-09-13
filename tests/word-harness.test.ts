@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { readWordContent } from "../lib/harness/word.ts";
+import { readWordContent } from "../src/lib/harness/word.ts";
 
 test("readWordContent returns textContent of the element", () => {
   const el = { textContent: "hello world" } as unknown as HTMLElement;

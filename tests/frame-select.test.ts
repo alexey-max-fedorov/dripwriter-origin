@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { selectTargetFrame } from "../lib/frame-select.ts";
+import { selectTargetFrame } from "../src/lib/frame-select.ts";
 
 test("selectTargetFrame returns the most recently focused frame", () => {
   assert.equal(
