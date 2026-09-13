@@ -26,6 +26,7 @@ import { selectHarness } from "~/lib/harness/registry";
 import { readEditableContent } from "~/lib/harness/default";
 import { DIAGNOSTIC_METHODS } from "~/lib/harness/docs";
 import type { Harness } from "~/lib/harness/types";
+import { readWordContent } from "~/lib/harness/word";
 
 interface RunState {
   cancelled: boolean;
@@ -307,6 +308,12 @@ function setStatus(running: boolean, detail: string, failed = false) {
   currentStatus = { running, detail, failed };
 }
 
+function statusForHarness(id: string): string {
+  if (id === "docs") return "Checking Google Docs...";
+  if (id === "word-online") return "Checking Word Online...";
+  return "Checking editor...";
+}
+
 function acquireWakeLock() {
   void navigator.locks.request("dripwriter-active", () =>
     new Promise<void>(resolve => { releaseLock = resolve; })
@@ -369,7 +376,7 @@ async function runDripwriter(
 
     // Stays "Checking..." until a character is PROVEN to have landed, so a
     // document that rejects our input never shows a fake progress percentage.
-    setStatus(true, harness.id === "docs" ? "Checking Google Docs..." : "Checking editor...");
+    setStatus(true, statusForHarness(harness.id));
 
     const text = settings.text.replace(/\r\n/g, "\n");
 
@@ -572,9 +579,12 @@ async function prepareResume(
     run.strayChars = Math.max(0, run.strayChars - deleted);
   }
 
-  if (resume.nextIndex > 0 && harness.id === "default") {
+  if (resume.nextIndex > 0 && (harness.id === "default" || harness.id === "word-online")) {
     const target = harness.ensureTarget();
-    const current = readEditableContent(target.element);
+    const current =
+      harness.id === "word-online"
+        ? readWordContent(target.element)
+        : readEditableContent(target.element);
     const expected = text.slice(0, resume.nextIndex);
 
     if (!current.endsWith(expected)) {
