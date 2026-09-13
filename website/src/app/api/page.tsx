@@ -25,7 +25,7 @@ const methods = [
   { name: "start()", returns: "Promise<void>", behavior: "Begins typing; resolves when complete; rejects on error or cancellation." },
   { name: "stop()", returns: "Promise<void>", behavior: "Cancels the active run; resolves once acknowledged." },
   { name: "test()", returns: "Promise<void>", behavior: "Runs the input-event diagnostic matrix (~10 seconds); resolves when all 8 methods have been tried." },
-  { name: "status()", returns: "Promise<{ running: boolean, detail: string }>", behavior: "Returns a snapshot of the current run state." },
+  { name: "status()", returns: "Promise<{ running: boolean, detail: string, resumable?: boolean }>", behavior: "Returns a snapshot of the current run state. resumable is true when a stopped run can be continued from the popup." },
   { name: "version", returns: "string", behavior: "Read-only. Extension semver, e.g. \"2.1.0\"." }
 ];
 
@@ -223,7 +223,9 @@ _dripwriter.config.breakMaxSeconds = 12;       // breakMinSeconds–90`}</CodeBl
             <Prose>
               Returns a snapshot — not a subscription. For waiting on completion, use{" "}
               <InlineCode>await _dripwriter.start()</InlineCode>; don't poll{" "}
-              <InlineCode>status()</InlineCode> in a loop.
+              <InlineCode>status()</InlineCode> in a loop. When a run is stopped mid-way,{" "}
+              <InlineCode>resumable</InlineCode> is <InlineCode>true</InlineCode> — the user can
+              press Resume in the popup to continue from where they left off.
             </Prose>
 
             {/* Error handling */}
@@ -246,6 +248,7 @@ _dripwriter.config.breakMaxSeconds = 12;       // breakMinSeconds–90`}</CodeBl
               <li>
                 With API mode enabled, the bridge is available on any page you're typing into —
                 Google Docs, Canvas, Packback, or any standard textarea or contenteditable field.
+                <strong className="text-white font-medium"> Microsoft Word Online is not supported via the console API</strong> — use the popup instead.
               </li>
               <li>
                 Calling <InlineCode>start()</InlineCode> while another run is in progress stops
