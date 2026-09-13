@@ -1,6 +1,10 @@
 import { selectTargetFrame, type FrameFocus } from "~/lib/frame-select";
 import type { FrameMessage, TargetFrameResponse } from "~/types";
 
+if (chrome.sidePanel) {
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+}
+
 /**
  * Frame-target registry.
  *
