@@ -211,6 +211,12 @@ function PopupView() {
     setResumable(Boolean(response.status.resumable) && !response.status.running);
   }, [sendToActiveTab]);
 
+  useEffect(() => {
+    if (statusState !== "running") return;
+    const id = setInterval(() => void refreshStatus(), 500);
+    return () => clearInterval(id);
+  }, [statusState, refreshStatus]);
+
   const onStart = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
