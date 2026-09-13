@@ -189,7 +189,7 @@ const DRIPWRITER_PROMPT =
   "| `start()` | `() => Promise<void>` | Begins typing. Resolves when typing finishes; rejects on error or cancellation. |\n" +
   "| `stop()` | `() => Promise<void>` | Cancels the active run. |\n" +
   "| `test()` | `() => Promise<void>` | Runs a diagnostic matrix (8 input strategies). Use only when debugging. |\n" +
-  "| `status()` | `() => Promise<{ running: boolean, detail: string }>` | One-shot snapshot. **Do not poll in a loop.** |\n" +
+  "| `status()` | `() => Promise<{ running: boolean, detail: string, resumable?: boolean }>` | One-shot snapshot. **Do not poll in a loop.** `resumable` is true when a stopped run can be continued from the popup. |\n" +
   "| `version` | `string` | Extension semver. |\n" +
   "\n" +
   "### `config` fields (mutate directly, then call `start()`)\n" +
@@ -217,7 +217,8 @@ const DRIPWRITER_PROMPT =
   "5. **Ensure the cursor is inside the text box** before calling `start()`. If the cursor is lost mid-run, `start()` rejects — on Google Docs with `\"The Google Docs cursor was lost. Click back into the document and retry.\"`, and on other fields with a similar \"click back into it\" message — surface it to the user verbatim.\n" +
   "6. **Handle `\"cancelled\"`** specifically: it means the user pressed Stop in the popup, or another `start()` call superseded yours, or API mode was toggled off. This is a *user action*, not an error — handle it gracefully (don't retry).\n" +
   "7. **Handle `\"Dripwriter API mode was disabled.\"`** by stopping further work; the user explicitly opted out.\n" +
-  "8. **Never call `_dripwriter.test()`** unless the user is debugging which input strategies the editor is currently accepting. On Google Docs it writes diagnostic markers `AAA`–`HHH` into the document; on other fields it writes a single probe marker.";
+  "8. **Never call `_dripwriter.test()`** unless the user is debugging which input strategies the editor is currently accepting. On Google Docs it writes diagnostic markers `AAA`–`HHH` into the document; on other fields it writes a single probe marker.\n" +
+  "9. **Microsoft Word Online is not supported via the console API.** The Word Online editor runs inside a cross-origin iframe that the API bridge cannot reach. If the user needs to type into Word Online, tell them to use the Dripwriter popup directly instead.";
 
 const EXAMPLE_PROMPT =
   "/dripwriter\nUse dripwriter to type 2 sentences about what GDP is in the Part A Response box, then type 2 sentences about what checking accounts are in the Part B response box. Make sure to verify you click the cursor inside the Part B response box after Part A is done.";
