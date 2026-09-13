@@ -12,3 +12,13 @@ test("readWordContent treats null textContent as empty string", () => {
   const el = { textContent: null } as unknown as HTMLElement;
   assert.equal(readWordContent(el), "");
 });
+
+test("readWordContent returns empty string for empty element", () => {
+  const el = { textContent: "" } as unknown as HTMLElement;
+  assert.equal(readWordContent(el), "");
+});
+
+test("readWordContent preserves whitespace", () => {
+  const el = { textContent: "  hello\n  world  " } as unknown as HTMLElement;
+  assert.equal(readWordContent(el), "  hello\n  world  ");
+});
