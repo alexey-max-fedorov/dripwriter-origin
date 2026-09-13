@@ -49,6 +49,8 @@ interface RunState {
    * committed prefix, so Stop must save them for Resume to delete first.
    */
   strayChars: number;
+  /** Resolves any pending wait() timer immediately so stopDrip doesn't block. */
+  cancelWait?: () => void;
 }
 
 /**
@@ -320,6 +322,7 @@ function stopRun(detail?: string, supersede = false) {
   if (activeRun) {
     activeRun.cancelled = true;
     activeRun.superseded = supersede;
+    activeRun.cancelWait?.();
     activeRun = null;
     releaseWakeLock();
   }
@@ -867,7 +870,15 @@ async function wait(run: RunState, ms: number, countsTowardTyping: boolean) {
   }
 
   await new Promise<void>((resolve) => {
-    window.setTimeout(resolve, ms);
+    const timer = window.setTimeout(() => {
+      run.cancelWait = undefined;
+      resolve();
+    }, ms);
+    run.cancelWait = () => {
+      window.clearTimeout(timer);
+      run.cancelWait = undefined;
+      resolve();
+    };
   });
 }
 
