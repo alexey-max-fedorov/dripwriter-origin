@@ -75,6 +75,14 @@ const DELETE_METHODS: DocsMethod[] = [
   }
 ];
 
+const NEWLINE_METHODS: DocsMethod[] = [
+  {
+    label: "enter-key",
+    apply: (target) => void dispatchDocsEnter(target.element)
+  },
+  ...INSERT_METHODS
+];
+
 /**
  * Only the local caret blinks, which distinguishes it from collaborator carets
  * in a shared document.
@@ -136,6 +144,7 @@ export class DocsHarness implements Harness {
   private spaceMethod?: DocsMethod;
   /** Deletion is a different set again. */
   private deleteMethod?: DocsMethod;
+  private newlineMethod?: DocsMethod;
   /** Set once this build rejects lone whitespace via every single-char method. */
   private whitespaceNeedsPairing = false;
   /** False until a character has provably landed in the document. */
@@ -158,6 +167,29 @@ export class DocsHarness implements Harness {
     const target = this.requireTarget(
       "The Google Docs cursor was lost. Click back into the document and retry."
     );
+
+    if (text === "\n") {
+      const winner = await cascadeUntilVerified({
+        methods: NEWLINE_METHODS,
+        locked: this.newlineMethod,
+        target,
+        text,
+        attempt: attemptMutation
+      });
+
+      if (!winner) {
+        throw new Error(this.wrote ? DOCS_STOPPED_MESSAGE : DOCS_REJECTED_MESSAGE);
+      }
+
+      this.newlineMethod = winner;
+
+      if (!this.wrote) {
+        this.wrote = true;
+        this.deps.onFirstWrite?.();
+      }
+
+      return 0;
+    }
 
     const isWhitespace = /^\s+$/.test(text);
     const locked = isWhitespace ? this.spaceMethod : this.textMethod;
@@ -217,10 +249,18 @@ export class DocsHarness implements Harness {
     return consumed;
   }
 
-  async delete(count: number): Promise<void> {
+  /**
+   * Deletes backward one verified character at a time, up to `count`, and
+   * returns how many characters were PROVEN deleted. Deletion bails out (and
+   * stops early) once the run's cancellation signal fires, so the caller can
+   * still account for what actually happened.
+   */
+  async delete(count: number): Promise<number> {
+    let deleted = 0;
+
     for (let index = 0; index < count; index += 1) {
       if (this.deps.isCancelled?.()) {
-        return;
+        return deleted;
       }
 
       const target = this.requireTarget("The Google Docs cursor was lost while deleting.");
@@ -238,8 +278,11 @@ export class DocsHarness implements Harness {
       }
 
       this.deleteMethod = winner;
+      deleted += 1;
       await this.deps.betweenDeletes?.();
     }
+
+    return deleted;
   }
 
   private requireTarget(lostMessage: string): EditableTarget {
@@ -357,6 +400,52 @@ function dispatchBackspace(element: HTMLElement | null) {
         code: "Backspace",
         keyCode: 8,
         which: 8,
+        bubbles: true
+      })
+    );
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function dispatchDocsEnter(element: HTMLElement | null) {
+  if (!element) {
+    return false;
+  }
+
+  try {
+    element.focus({ preventScroll: true });
+
+    element.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        code: "Enter",
+        keyCode: 13,
+        which: 13,
+        bubbles: true
+      })
+    );
+    element.dispatchEvent(
+      new InputEvent("beforeinput", {
+        bubbles: true,
+        cancelable: true,
+        inputType: "insertParagraph"
+      })
+    );
+    element.dispatchEvent(
+      new InputEvent("input", {
+        bubbles: true,
+        inputType: "insertParagraph"
+      })
+    );
+    element.dispatchEvent(
+      new KeyboardEvent("keyup", {
+        key: "Enter",
+        code: "Enter",
+        keyCode: 13,
+        which: 13,
         bubbles: true
       })
     );

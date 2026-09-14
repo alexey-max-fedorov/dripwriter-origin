@@ -30,7 +30,7 @@ node -e "
 
 # Update lib/version.ts (extension popup)
 sed -i '' "s/^export const VERSION = \".*\";/export const VERSION = \"$NEW_VERSION\";/" \
-  "$ROOT/lib/version.ts"
+  "$ROOT/src/lib/version.ts"
 
 # Update website/src/lib/version.ts (website UI)
 sed -i '' "s/^export const VERSION = \".*\";/export const VERSION = \"$NEW_VERSION\";/" \
@@ -38,11 +38,11 @@ sed -i '' "s/^export const VERSION = \".*\";/export const VERSION = \"$NEW_VERSI
 
 # Update contents/bridge.ts (MAIN-world content script)
 sed -i '' "s/^export const VERSION = \".*\";/export const VERSION = \"$NEW_VERSION\";/" \
-  "$ROOT/contents/bridge.ts"
+  "$ROOT/src/contents/bridge.ts"
 
 echo "✓ Bumped to v$NEW_VERSION"
 echo "  → package.json"
 echo "  → website/package.json"
-echo "  → lib/version.ts"
+echo "  → src/lib/version.ts"
 echo "  → website/src/lib/version.ts"
-echo "  → contents/bridge.ts"
+echo "  → src/contents/bridge.ts"

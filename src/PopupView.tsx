@@ -11,14 +11,8 @@ import {
 } from "./types";
 import { VERSION_TAG } from "~/lib/version";
 
-import "./popup.css";
-
 type StatusState = "idle" | "running" | "error" | "done";
 
-/**
- * A run that Google Docs rejected must read as an error, not as a quiet "done" —
- * otherwise a document that accepted nothing looks identical to a successful run.
- */
 function stateForStatus(status: TypingStatus, settled: StatusState): StatusState {
   if (status.failed) return "error";
   return status.running ? "running" : settled;
@@ -60,12 +54,13 @@ function MixRow({ id, label, unit, min, max, step = 1, value, onChange }: {
 
 const STORAGE_KEY = "dripwriterSettings";
 
-function PopupView() {
+export default function PopupView({ closeOnStart }: { closeOnStart?: boolean }) {
   const [settings, setSettings] = useState<DripwriterSettings>(DEFAULT_SETTINGS);
   const [statusDetail, setStatusDetail] = useState<string>(
     "Idle. Click into any text box, then press Start."
   );
   const [statusState, setStatusState] = useState<StatusState>("idle");
+  const [resumable, setResumable] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [titleLen, setTitleLen] = useState(TITLE.length);
   const loaded = useRef(false);
@@ -73,7 +68,6 @@ function PopupView() {
   const [apiMode, setApiMode] = useState<boolean>(false);
   const apiModeLoaded = useRef(false);
 
-  // Load persisted settings on mount, then ask the active tab for current status.
   useEffect(() => {
     let cancelled = false;
 
@@ -103,13 +97,11 @@ function PopupView() {
     };
   }, []);
 
-  // Persist on every settings change (skip until initial load completes).
   useEffect(() => {
     if (!loaded.current) return;
     void chrome.storage.local.set({ [STORAGE_KEY]: settings });
   }, [settings]);
 
-  // Load persisted theme.
   useEffect(() => {
     chrome.storage.local.get({ [THEME_KEY]: "dark" }).then(r => {
       setTheme((r[THEME_KEY] as "dark" | "light") || "dark");
@@ -117,7 +109,6 @@ function PopupView() {
     });
   }, []);
 
-  // Apply theme to body and persist (skip persist until initial load completes).
   useEffect(() => {
     document.body.dataset.theme = theme;
     if (!themeLoaded.current) return;
@@ -136,7 +127,6 @@ function PopupView() {
     void chrome.storage.local.set({ [API_MODE_STORAGE_KEY]: apiMode });
   }, [apiMode]);
 
-  // Typewriter title reveal — once per tab per browser session.
   useEffect(() => {
     chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
       if (!tab?.id) return;
@@ -166,9 +156,6 @@ function PopupView() {
         return null;
       }
 
-      // Google Docs owns the top frame; everywhere else, ask the service worker
-      // which frame last focused an editable — that's where the user wants to
-      // type, even when it's a cross-origin iframe like the Packback editor.
       const isDocs = tab.url?.startsWith("https://docs.google.com/document/");
       let frameId: number | undefined = isDocs ? 0 : undefined;
 
@@ -206,7 +193,14 @@ function PopupView() {
     if (!response) return;
     setStatusDetail(response.status.detail);
     setStatusState(stateForStatus(response.status, "idle"));
+    setResumable(Boolean(response.status.resumable) && !response.status.running);
   }, [sendToActiveTab]);
+
+  useEffect(() => {
+    if (statusState !== "running") return;
+    const id = setInterval(() => void refreshStatus(), 500);
+    return () => clearInterval(id);
+  }, [statusState, refreshStatus]);
 
   const onStart = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -224,17 +218,19 @@ function PopupView() {
         setSettings(payload);
       }
 
+      setResumable(false);
+
       const response = await sendToActiveTab({ type: "START_DRIP", payload });
       if (!response) return;
 
       setStatusDetail(response.status.detail);
       setStatusState(stateForStatus(response.status, "done"));
 
-      if (response.ok) {
+      if (response.ok && closeOnStart) {
         window.close();
       }
     },
-    [settings, sendToActiveTab]
+    [settings, sendToActiveTab, closeOnStart]
   );
 
   const onStop = useCallback(async () => {
@@ -242,19 +238,39 @@ function PopupView() {
     if (!response) {
       setStatusDetail("Stopped locally.");
       setStatusState("idle");
+      setResumable(false);
       return;
     }
     setStatusDetail(response.status.detail);
     setStatusState("idle");
+    setResumable(Boolean(response.status.resumable) && !response.status.running);
   }, [sendToActiveTab]);
+
+  const onResume = useCallback(async () => {
+    const response = await sendToActiveTab({ type: "RESUME_DRIP", payload: { ...settings } });
+    if (!response) return;
+
+    setStatusDetail(response.status.detail);
+    setStatusState(stateForStatus(response.status, "done"));
+
+    if (!response.status.resumable) {
+      setResumable(false);
+    }
+
+    if (response.ok && closeOnStart) {
+      window.close();
+    }
+  }, [settings, sendToActiveTab, closeOnStart]);
 
   const onDiagnostics = useCallback(async () => {
     const response = await sendToActiveTab({ type: "RUN_DIAGNOSTICS" });
     if (!response) return;
+    setResumable(false);
     setStatusDetail(response.status.detail);
+
     setStatusState(stateForStatus(response.status, "done"));
-    if (response.ok) window.close();
-  }, [sendToActiveTab]);
+    if (response.ok && closeOnStart) window.close();
+  }, [sendToActiveTab, closeOnStart]);
 
   const update = <K extends keyof DripwriterSettings>(key: K, value: DripwriterSettings[K]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
@@ -332,6 +348,15 @@ function PopupView() {
           <button type="submit" className="button button--primary">
             Start
           </button>
+          {resumable && statusState !== "running" && (
+            <button
+              type="button"
+              className="button button--ghost"
+              onClick={() => void onResume()}
+            >
+              Resume
+            </button>
+          )}
           <button
             type="button"
             className="button button--ghost"
@@ -339,13 +364,15 @@ function PopupView() {
           >
             Run Test
           </button>
-          <button
-            type="button"
-            className="button button--ghost"
-            onClick={() => void onStop()}
-          >
-            Stop
-          </button>
+          {statusState === "running" && (
+            <button
+              type="button"
+              className="button button--ghost"
+              onClick={() => void onStop()}
+            >
+              Stop
+            </button>
+          )}
         </div>
       </form>
 
@@ -369,11 +396,9 @@ function PopupView() {
           />
         </label>
         <p className="api-toggle__hint">
-          Exposes <code>window._dripwriter</code> in Google Docs tabs. Active immediately — no reload needed.
+          Exposes <code>window._dripwriter</code> on the active page. Active immediately — no reload needed.
         </p>
       </div>
     </main>
   );
 }
-
-export default PopupView;

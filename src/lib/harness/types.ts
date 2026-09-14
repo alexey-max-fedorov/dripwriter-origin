@@ -44,6 +44,10 @@ export interface Harness {
    * caller can skip them; 0 when only `text` was inserted.
    */
   insert(text: string, remainingAfter?: string): Promise<number>;
-  /** Delete `count` characters backward, verified. */
-  delete(count: number): Promise<void>;
+  /**
+   * Delete backward, verified, up to `count` characters. Returns how many
+   * characters were PROVEN deleted — the typing loop tracks how many temporary
+   * typo/detour characters exist and needs the real number to stay in sync.
+   */
+  delete(count: number): Promise<number>;
 }

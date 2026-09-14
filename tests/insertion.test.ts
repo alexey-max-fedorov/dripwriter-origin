@@ -7,7 +7,7 @@ import {
   cascadeUntilVerified,
   type MutationMethod,
   waitForChange
-} from "../lib/insertion.ts";
+} from "../src/lib/insertion.ts";
 
 describe("buildCaretSignature", () => {
   it("reports no-caret when the document has none", () => {

@@ -5,12 +5,15 @@ Two targets: a Plasmo browser extension and a Next.js marketing website.
 ## Version Bump
 `./bump-version.sh <version>` — syncs version across all 4 version files at once.
 
-## Extension Entry Points
-- `popup.tsx` — popup UI (React + CSS)
-- `content.ts` — content script injected into active tabs; handles all typing simulation
-- `types.ts` — shared types and `DEFAULT_SETTINGS`
+## Extension Source (`src/`)
+- `src/popup.tsx` — popup UI wrapper (Firefox); imports `PopupView`
+- `src/sidepanel.tsx` — Chrome Side Panel wrapper; imports `PopupView`
+- `src/PopupView.tsx` — shared popup/sidepanel UI component
+- `src/content.ts` — content script; handles all typing simulation
+- `src/background.ts` — service worker; frame targeting + side panel behavior
+- `src/types.ts` — shared types and `DEFAULT_SETTINGS`
 
-Dev: `pnpm dev` | Build: `pnpm build` | Firefox: append `--target=firefox-mv3` | Package (zip): append `--zip`
+Dev: `pnpm dev` | Build: `pnpm build` | Firefox: `pnpm build:firefox` | Package (zip): `pnpm package`
 → See `.claude/extension.md`
 
 ## Website Routes (Next.js App Router — `website/`)

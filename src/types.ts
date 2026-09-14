@@ -15,10 +15,23 @@ export interface TypingStatus {
   detail: string;
   /** Set when a run ended because Google Docs rejected the text we tried to insert. */
   failed?: boolean;
+  /**
+   * Set when a stopped run kept enough state to continue later: a Resume
+   * request will continue from the last successfully typed character.
+   */
+  resumable?: boolean;
 }
 
 export type DripwriterMessage =
   | { type: "START_DRIP"; payload: DripwriterSettings }
+  | {
+      /**
+       * Echoes the popup's current settings so the content script can refuse to
+       * silently resume a run whose text or knobs changed after the Stop.
+       */
+      type: "RESUME_DRIP";
+      payload: { text: string } & Partial<DripwriterSettings>;
+    }
   | { type: "RUN_DIAGNOSTICS" }
   | { type: "STOP_DRIP" }
   | { type: "GET_STATUS" };
