@@ -61,8 +61,14 @@ interface RunState {
  * this module entirely — no storage persistence.
  */
 interface ResumeState {
-  /** Exact settings the stopped run used; Resume continues the original run. */
-  settings: DripwriterSettings;
+  /**
+   * The normalized text the stopped run was typing. Used solely as an identity
+   * check: if the popup's text changed after Stop, the saved position is no
+   * longer safe and Resume must refuse. Typing-behavior settings (WPM, breaks,
+   * etc.) are intentionally excluded — changing them does not invalidate the
+   * cursor position, and the resumed run picks up the current knobs.
+   */
+  text: string;
   /**
    * Number of verified characters committed before the stop: every loop index
    * below this provably landed (insertion is verified before the index moves).
@@ -197,14 +203,23 @@ function resumeDrip(
     return { ok: false, status: currentStatus, error: detail };
   }
 
-  // The popup still owns the live sliders, so it echoes them along; anything
-  // the user touched since the Stop means this is no longer the same run.
-  if (payload && !isCompatibleResumePayload(payload, saved.settings)) {
+  // Only the TEXT is part of the resume-position identity. Typing-behavior
+  // settings (WPM, speed variance, breaks, …) can change freely — the resumed
+  // run simply picks up whatever the popup shows now.
+  if (payload && !isCompatibleResumePayload(payload, saved)) {
     resumeState = null;
-    const detail = "The text or settings changed since the run was stopped. Press Start to retype it.";
+    const detail = "The text changed since the run was stopped. Press Start to retype it.";
     setStatus(false, detail);
     return { ok: false, status: currentStatus, error: detail };
   }
+
+  // Build a live settings object: the saved text (already validated above) with
+  // the popup's current typing knobs so the resumed run uses fresh config.
+  const liveSettings = normalizeSettings({
+    ...DEFAULT_SETTINGS,
+    ...(payload ?? {}),
+    text: saved.text
+  });
 
   const { run, resolveHalt } = createRun(() => {});
 
@@ -212,7 +227,7 @@ function resumeDrip(
   acquireWakeLock();
   setStatus(true, "Starting to type in 3...");
 
-  void runDripwriter(run, saved.settings, saved)
+  void runDripwriter(run, liveSettings, saved)
     .finally(() => resolveHalt())
     .catch(() => {});
 
@@ -233,32 +248,18 @@ function createRun(
   };
 }
 
-/** Resume continues the saved run: text must match, and knobs must too. */
+/**
+ * Only the TEXT determines whether the saved cursor position is still valid.
+ * Typing-behavior settings (WPM, speed variance, breaks, typoRate, …) are
+ * intentionally not compared: changing them after Stop is allowed, and the
+ * resumed run uses the popup's current values.
+ */
 function isCompatibleResumePayload(
   payload: { text: string } & Partial<DripwriterSettings>,
-  saved: DripwriterSettings
+  saved: ResumeState
 ): boolean {
   const normalizeText = (text: string) => text.replace(/\r\n/g, "\n");
-
-  if (normalizeText(payload.text) !== normalizeText(saved.text)) {
-    return false;
-  }
-
-  const keys: Array<keyof DripwriterSettings> = [
-    "wpm",
-    "speedVariance",
-    "typoRate",
-    "detourRate",
-    "breakFrequencySeconds",
-    "breakFrequencyVariance",
-    "breakMinSeconds",
-    "breakMaxSeconds"
-  ];
-
-  return keys.every((key) => {
-    const value = payload[key];
-    return value === undefined || value === saved[key];
-  });
+  return normalizeText(payload.text) === normalizeText(saved.text);
 }
 
 async function stopDrip(): Promise<{ ok: boolean; status: TypingStatus }> {
@@ -525,7 +526,7 @@ async function finalizeHaltedRun(
 
   if (nextIndex > 0) {
     resumeState = {
-      settings,
+      text: settings.text.replace(/\r\n/g, "\n"),
       nextIndex,
       strayChars: run.strayChars,
       harnessId
