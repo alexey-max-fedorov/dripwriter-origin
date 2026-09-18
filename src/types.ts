@@ -26,8 +26,9 @@ export type DripwriterMessage =
   | { type: "START_DRIP"; payload: DripwriterSettings }
   | {
       /**
-       * Echoes the popup's current settings so the content script can refuse to
-       * silently resume a run whose text or knobs changed after the Stop.
+       * Echoes the popup's current settings so the content script can validate
+       * that the text hasn't changed (rejecting Resume if it has) and pick up
+       * any updated typing knobs (WPM, breaks, etc.) for the resumed run.
        */
       type: "RESUME_DRIP";
       payload: { text: string } & Partial<DripwriterSettings>;
