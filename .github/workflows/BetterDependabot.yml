@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@v7
 
     - name: Install pnpm + Node.js ${{ matrix.node-version }}
-      uses: pnpm/setup@v2
+      uses: pnpm/setup@v3
       with:
         version: "11"
         runtime: node@${{ matrix.node-version }}
