@@ -1,7 +1,7 @@
 {
   "name": "dripwriter-origin",
   "displayName": "Dripwriter Origin",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Simulates human typing on any website — Google Docs, Canvas, and more: natural speed, realistic typos, false starts, and breaks.",
   "author": "Alexey Fedorov",
   "private": true,
@@ -9,9 +9,9 @@
   "scripts": {
     "dev": "plasmo dev",
     "dev:firefox": "plasmo dev --target=firefox-mv3",
-    "build": "plasmo build && node scripts/fix-manifest.js chrome",
-    "build:firefox": "plasmo build --target=firefox-mv3 && node scripts/fix-manifest.js firefox",
-    "package": "plasmo package && node scripts/fix-manifest.js chrome && plasmo package --target=firefox-mv3 && node scripts/fix-manifest.js firefox",
+    "build": "plasmo build",
+    "build:firefox": "plasmo build --target=firefox-mv3",
+    "package": "plasmo package && plasmo package --target=firefox-mv3",
     "typecheck": "tsc --noEmit",
     "test": "node --test \"tests/*.test.ts\"",
     "test:integration": "node --test --test-concurrency=1 \"tests/integration/*.test.mjs\"",

@@ -6,11 +6,10 @@ Plasmo framework, Manifest V3, dual Chrome + Firefox builds.
 
 | File | Role |
 |------|------|
-| `src/popup.tsx` | Popup entry point (Firefox); thin wrapper around `PopupView` |
-| `src/sidepanel.tsx` | Side Panel entry point (Chrome); thin wrapper around `PopupView` |
-| `src/PopupView.tsx` | Shared React UI component for popup and side panel |
+| `src/popup.tsx` | Popup entry point; thin wrapper around `PopupView` |
+| `src/PopupView.tsx` | Popup React UI (Chrome, Edge, Opera, Firefox) |
 | `src/content.ts` | Content script injected into every tab; owns all typing simulation logic |
-| `src/background.ts` | Service worker; frame targeting + side panel behavior |
+| `src/background.ts` | Service worker; frame targeting |
 | `src/contents/bridge.ts` | MAIN-world content script; exposes `window._dripwriter` API when API mode is enabled |
 | `src/types.ts` | Shared types, message protocol, and `DEFAULT_SETTINGS` |
 | `src/popup.css` | All popup/panel styles (Google Fonts, mixer layout, range sliders, themes) |
@@ -36,9 +35,12 @@ Response is always `DripwriterResponse { ok, status, error? }`.
 `TypingStatus.resumable` is set when a stopped run kept enough state to continue.
 Stop preserves the verified commit position plus any temporary typo/detour
 characters still in the editor; `RESUME_DRIP` deletes those strays, re-verifies
-the committed prefix against the editor, and continues the run with its ORIGINAL
-settings. Start always means a fresh run and discards saved progress. Resume is
-popup-only — the console bridge contract stays start/stop/test/status.
+the committed prefix against the editor, and continues with the popup's current
+typing knobs. Only the text is part of the resume identity — changing WPM,
+breaks, typos, or false starts after Stop does not invalidate the saved
+position. Changing the text does. Start always means a fresh run and discards
+saved progress. Resume is popup-only — the console bridge contract stays
+start/stop/test/status.
 
 **Limitation:** Resume prefix verification only works on `default` and `word-online`
 harnesses (they read `textContent`). Google Docs uses a canvas renderer so the
