@@ -54,7 +54,7 @@ function MixRow({ id, label, unit, min, max, step = 1, value, onChange }: {
 
 const STORAGE_KEY = "dripwriterSettings";
 
-export default function PopupView({ closeOnStart }: { closeOnStart?: boolean }) {
+export default function PopupView() {
   const [settings, setSettings] = useState<DripwriterSettings>(DEFAULT_SETTINGS);
   const [statusDetail, setStatusDetail] = useState<string>(
     "Idle. Click into any text box, then press Start."
@@ -147,12 +147,20 @@ export default function PopupView({ closeOnStart }: { closeOnStart?: boolean }) 
   }, [titleLen]);
 
   const sendToActiveTab = useCallback(
-    async (message: DripwriterMessage): Promise<DripwriterResponse | null> => {
+    async (
+      message: DripwriterMessage,
+      reportErrors = true
+    ): Promise<DripwriterResponse | null> => {
+      const fail = (detail: string) => {
+        if (!reportErrors) return;
+        setStatusDetail(detail);
+        setStatusState("error");
+      };
+
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
       if (!tab?.id) {
-        setStatusDetail("No active tab to type into.");
-        setStatusState("error");
+        fail("No active tab to type into.");
         return null;
       }
 
@@ -166,8 +174,7 @@ export default function PopupView({ closeOnStart }: { closeOnStart?: boolean }) 
         })) as TargetFrameResponse | undefined;
 
         if (res?.frameId == null) {
-          setStatusDetail("Click into a text box on the page, then press Start.");
-          setStatusState("error");
+          fail("Click into a text box on the page, then press Start.");
           return null;
         }
         frameId = res.frameId;
@@ -180,8 +187,7 @@ export default function PopupView({ closeOnStart }: { closeOnStart?: boolean }) 
           frameId != null ? { frameId } : undefined
         )) as DripwriterResponse;
       } catch {
-        setStatusDetail("Reload the page so the extension can attach, then try again.");
-        setStatusState("error");
+        fail("Reload the page so the extension can attach, then try again.");
         return null;
       }
     },
@@ -189,7 +195,9 @@ export default function PopupView({ closeOnStart }: { closeOnStart?: boolean }) 
   );
 
   const refreshStatus = useCallback(async () => {
-    const response = await sendToActiveTab({ type: "GET_STATUS" });
+    // Status polls must not paint an error. A missing target or a blip while
+    // a run is in progress used to flip the bar red and stop the live updates.
+    const response = await sendToActiveTab({ type: "GET_STATUS" }, false);
     if (!response) return;
     setStatusDetail(response.status.detail);
     setStatusState(stateForStatus(response.status, "idle"));
@@ -226,11 +234,11 @@ export default function PopupView({ closeOnStart }: { closeOnStart?: boolean }) 
       setStatusDetail(response.status.detail);
       setStatusState(stateForStatus(response.status, "done"));
 
-      if (response.ok && closeOnStart) {
+      if (response.ok) {
         window.close();
       }
     },
-    [settings, sendToActiveTab, closeOnStart]
+    [settings, sendToActiveTab]
   );
 
   const onStop = useCallback(async () => {
@@ -257,10 +265,10 @@ export default function PopupView({ closeOnStart }: { closeOnStart?: boolean }) 
       setResumable(false);
     }
 
-    if (response.ok && closeOnStart) {
+    if (response.ok) {
       window.close();
     }
-  }, [settings, sendToActiveTab, closeOnStart]);
+  }, [settings, sendToActiveTab]);
 
   const onDiagnostics = useCallback(async () => {
     const response = await sendToActiveTab({ type: "RUN_DIAGNOSTICS" });
@@ -269,8 +277,8 @@ export default function PopupView({ closeOnStart }: { closeOnStart?: boolean }) 
     setStatusDetail(response.status.detail);
 
     setStatusState(stateForStatus(response.status, "done"));
-    if (response.ok && closeOnStart) window.close();
-  }, [sendToActiveTab, closeOnStart]);
+    if (response.ok) window.close();
+  }, [sendToActiveTab]);
 
   const update = <K extends keyof DripwriterSettings>(key: K, value: DripwriterSettings[K]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));

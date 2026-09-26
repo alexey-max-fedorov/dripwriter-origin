@@ -22,6 +22,7 @@ import {
   type TypingStatus
 } from "./types";
 import { VERSION } from "~/lib/version";
+import { isResumeTextCompatible, normalizeResumeText, settingsForResume } from "~/lib/resume";
 import { selectHarness } from "~/lib/harness/registry";
 import { readEditableContent } from "~/lib/harness/default";
 import { DIAGNOSTIC_METHODS } from "~/lib/harness/docs";
@@ -61,7 +62,11 @@ interface RunState {
  * this module entirely — no storage persistence.
  */
 interface ResumeState {
-  /** Exact settings the stopped run used; Resume continues the original run. */
+  /**
+   * Settings captured at Stop. `text` is the resume-position identity.
+   * Typing knobs are only a fallback for a resume that arrives without a
+   * payload — the popup's current knobs replace them when present.
+   */
   settings: DripwriterSettings;
   /**
    * Number of verified characters committed before the stop: every loop index
@@ -92,8 +97,36 @@ let currentStatus: TypingStatus = {
   detail: "Idle. Click where you want the text to start, then press Start."
 };
 
+const DRIPWRITER_MESSAGE_TYPES = new Set([
+  "GET_STATUS",
+  "STOP_DRIP",
+  "RESUME_DRIP",
+  "RUN_DIAGNOSTICS",
+  "START_DRIP"
+]);
+
+function isDripwriterMessage(message: unknown): message is DripwriterMessage {
+  if (!message || typeof message !== "object" || !("type" in message)) {
+    return false;
+  }
+  const type = (message as { type: unknown }).type;
+  return typeof type === "string" && DRIPWRITER_MESSAGE_TYPES.has(type);
+}
+
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  void handleMessage(message as DripwriterMessage).then(sendResponse);
+  // Frame-targeting messages (GET_TARGET_FRAME, EDITABLE_FOCUSED) are for the
+  // service worker. Responding here would steal that reply — Chrome keeps the
+  // first sendResponse — and the popup would think no editor was focused.
+  if (!isDripwriterMessage(message)) {
+    return;
+  }
+
+  void handleMessage(message)
+    .then(sendResponse)
+    .catch((error: unknown) => {
+      const detail = error instanceof Error ? error.message : "Typing failed.";
+      sendResponse({ ok: false, status: getStatus(), error: detail });
+    });
   return true;
 });
 
@@ -124,30 +157,38 @@ document.addEventListener(
 );
 
 async function handleMessage(message: DripwriterMessage): Promise<DripwriterResponse> {
-  if (message.type === "GET_STATUS") {
-    return { ok: true, status: getStatus() };
-  }
+  switch (message?.type) {
+    case "GET_STATUS":
+      return { ok: true, status: getStatus() };
 
-  if (message.type === "STOP_DRIP") {
-    // Awaited so the run's unwind (which captures the resumable state after any
-    // in-flight insert settles) has finished and the status is final.
-    const result = await stopDrip();
-    return { ok: result.ok, status: result.status };
-  }
+    case "STOP_DRIP": {
+      // Awaited so the run's unwind (which captures the resumable state after any
+      // in-flight insert settles) has finished and the status is final.
+      const result = await stopDrip();
+      return { ok: result.ok, status: result.status };
+    }
 
-  if (message.type === "RESUME_DRIP") {
-    const result = resumeDrip(message.payload);
-    return { ok: result.ok, status: result.status, error: result.error };
-  }
+    case "RESUME_DRIP": {
+      const result = resumeDrip(message.payload);
+      return { ok: result.ok, status: result.status, error: result.error };
+    }
 
-  if (message.type === "RUN_DIAGNOSTICS") {
-    const result = runDiagnostics();
-    return { ok: result.ok, status: result.status };
-  }
+    case "RUN_DIAGNOSTICS": {
+      const result = runDiagnostics();
+      return { ok: result.ok, status: result.status };
+    }
 
-  // START_DRIP
-  const result = startDrip(message.payload);
-  return { ok: result.ok, status: result.status, error: result.error };
+    case "START_DRIP": {
+      if (!message.payload || typeof message.payload.text !== "string") {
+        return { ok: false, status: getStatus(), error: "Missing settings." };
+      }
+      const result = startDrip(message.payload);
+      return { ok: result.ok, status: result.status, error: result.error };
+    }
+
+    default:
+      return { ok: false, status: getStatus(), error: "Unknown message." };
+  }
 }
 
 function startDrip(
@@ -197,14 +238,16 @@ function resumeDrip(
     return { ok: false, status: currentStatus, error: detail };
   }
 
-  // The popup still owns the live sliders, so it echoes them along; anything
-  // the user touched since the Stop means this is no longer the same run.
-  if (payload && !isCompatibleResumePayload(payload, saved.settings)) {
+  // Only the text identifies the saved cursor. Typing knobs can change after
+  // Stop; the resumed run picks up whatever the popup shows now.
+  if (payload && !isResumeTextCompatible(payload.text, saved.settings.text)) {
     resumeState = null;
-    const detail = "The text or settings changed since the run was stopped. Press Start to retype it.";
+    const detail = "The text changed since the run was stopped. Press Start to retype it.";
     setStatus(false, detail);
     return { ok: false, status: currentStatus, error: detail };
   }
+
+  const liveSettings = normalizeSettings(settingsForResume(saved.settings, payload));
 
   const { run, resolveHalt } = createRun(() => {});
 
@@ -212,7 +255,7 @@ function resumeDrip(
   acquireWakeLock();
   setStatus(true, "Starting to type in 3...");
 
-  void runDripwriter(run, saved.settings, saved)
+  void runDripwriter(run, liveSettings, saved)
     .finally(() => resolveHalt())
     .catch(() => {});
 
@@ -231,34 +274,6 @@ function createRun(
     run: { cancelled: false, activeTypingMs: 0, strayChars: 0, haltPromise, onSettled },
     resolveHalt
   };
-}
-
-/** Resume continues the saved run: text must match, and knobs must too. */
-function isCompatibleResumePayload(
-  payload: { text: string } & Partial<DripwriterSettings>,
-  saved: DripwriterSettings
-): boolean {
-  const normalizeText = (text: string) => text.replace(/\r\n/g, "\n");
-
-  if (normalizeText(payload.text) !== normalizeText(saved.text)) {
-    return false;
-  }
-
-  const keys: Array<keyof DripwriterSettings> = [
-    "wpm",
-    "speedVariance",
-    "typoRate",
-    "detourRate",
-    "breakFrequencySeconds",
-    "breakFrequencyVariance",
-    "breakMinSeconds",
-    "breakMaxSeconds"
-  ];
-
-  return keys.every((key) => {
-    const value = payload[key];
-    return value === undefined || value === saved[key];
-  });
 }
 
 async function stopDrip(): Promise<{ ok: boolean; status: TypingStatus }> {
@@ -379,7 +394,7 @@ async function runDripwriter(
     // document that rejects our input never shows a fake progress percentage.
     setStatus(true, statusForHarness(harness.id));
 
-    const text = settings.text.replace(/\r\n/g, "\n");
+    const text = normalizeResumeText(settings.text);
 
     if (resume) {
       await prepareResume(run, harness, text, resume);
@@ -525,7 +540,7 @@ async function finalizeHaltedRun(
 
   if (nextIndex > 0) {
     resumeState = {
-      settings,
+      settings: { ...settings, text: normalizeResumeText(settings.text) },
       nextIndex,
       strayChars: run.strayChars,
       harnessId

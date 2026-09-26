@@ -1,10 +1,6 @@
 import { selectTargetFrame, type FrameFocus } from "~/lib/frame-select";
 import type { FrameMessage, TargetFrameResponse } from "~/types";
 
-if (chrome.sidePanel) {
-  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
-}
-
 /**
  * Frame-target registry.
  *
@@ -18,6 +14,10 @@ if (chrome.sidePanel) {
 const focusByTab = new Map<number, Map<number, number>>();
 
 chrome.runtime.onMessage.addListener((message: FrameMessage, sender, sendResponse) => {
+  if (!message || typeof message !== "object" || !("type" in message)) {
+    return;
+  }
+
   if (message.type === "EDITABLE_FOCUSED") {
     const tabId = sender.tab?.id;
     if (tabId == null || sender.frameId == null) {

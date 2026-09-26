@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { label: "V3", href: "/v3", gold: true },
   { label: "Features", href: "/#features" },
   { label: "Install", href: "/#install" },
+  { label: "GitHub", href: "https://github.com/alexey-max-fedorov/dripwriter-origin", external: true },
   { label: "Support", href: "https://github.com/alexey-max-fedorov/dripwriter-origin/issues", external: true },
   { label: "Dripwriter + AI", href: "/ai", gold: true }
 ];
