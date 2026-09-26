@@ -247,7 +247,7 @@ export default function AiGuide() {
               className="text-5xl sm:text-6xl font-semibold text-white mb-5 leading-tight"
               style={{ fontFamily: "var(--font-playfair-display)" }}
             >
-              Dripwriter{" "}
+              Dripwriter Origin{" "}
               <span className="text-[#c9a84c]">+ AI</span>
             </h1>
             <p className="text-[#a0a0a0] text-base sm:text-lg max-w-lg mx-auto leading-relaxed">
