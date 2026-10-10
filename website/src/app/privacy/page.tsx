@@ -39,8 +39,8 @@ const sections = [
     body: 'THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. Use of Dripwriter Origin is at your own risk. The author makes no representations about the suitability of this software for any purpose and is not responsible for any consequences arising from its use, including account actions taken by third-party platforms.'
   },
   {
-    heading: "Website Analytics",
-    body: "The marketing website at dripwriter.org uses Vercel Analytics and Vercel Speed Insights. These collect anonymous, aggregated traffic data (page views, referrers, browser type, country-level location, and core web vitals). No cookies are set, no personally identifiable information is collected, and no data is sold or shared with third parties. This applies only to the website — the installed browser extension still makes zero network requests."
+    heading: "Website Hosting",
+    body: "The marketing website at dripwriter.org is a static site hosted on GitHub Pages. It runs no analytics, sets no cookies, and collects no personal information. As with any web host, GitHub may process standard request data (such as IP addresses) under its own privacy policy; that processing is outside the control of Dripwriter Origin. This applies only to the website — the installed browser extension still makes zero network requests."
   },
   {
     heading: "Browser Web Store Analytics",
@@ -79,9 +79,8 @@ export default function PrivacyPage() {
 
           <p className="text-[#a0a0a0] text-sm leading-relaxed mb-12 italic">
             This policy describes the data practices of the Dripwriter Origin browser
-            extension. The marketing website at dripwriter.org uses privacy-respecting
-            analytics (Vercel Analytics and Speed Insights) to understand aggregate
-            traffic patterns — see "Website Analytics" below.
+            extension. The marketing website at dripwriter.org is a static site with no
+            analytics or cookies — see "Website Hosting" below.
           </p>
 
           <div className="border-t border-[#1a1a1a]">

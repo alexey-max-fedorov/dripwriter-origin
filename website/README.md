@@ -2,7 +2,7 @@
 
 A Next.js marketing website for Dripwriter Origin, the cross-browser extension that types pasted text with human-like cadence.
 
-Deployed to **[dripwriter.org](https://dripwriter.org)** on Vercel.
+Deployed to **[dripwriter.org](https://dripwriter.org)** on GitHub Pages.
 
 ## Quick Start
 
@@ -23,7 +23,7 @@ pnpm build
 pnpm start
 ```
 
-Builds an optimized production bundle for Vercel deployment.
+Builds the static export to `website/out`.
 
 ## Project Structure
 
@@ -84,7 +84,6 @@ website/
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
 - **UI Icons**: [Lucide React](https://lucide.dev/)
-- **Analytics**: Vercel [Analytics](https://vercel.com/analytics) + [Speed Insights](https://vercel.com/speed-insights)
 
 ## Development Scripts
 
@@ -106,12 +105,11 @@ Example:
 
 ## Deployment
 
-The website is configured for deployment on [Vercel](https://vercel.com/). Push to the repository to trigger automatic builds and deployments.
+The website is a static export deployed to GitHub Pages by `.github/workflows/deploy-website.yml` on every push to master that touches `website/`.
 
 ### Environment & Features
 
 - **Root Path**: `/` (not nested under a subdomain)
-- **Analytics**: Vercel Analytics and Speed Insights are configured in `src/app/layout.tsx`
 - **Styling**: Tailwind CSS v4 with postcss
 - **SEO**: Next.js metadata and sitemap at `public/sitemap.xml`
 

@@ -1,6 +1,6 @@
 # Website Architecture
 
-Next.js App Router (`website/`). Deployed to Vercel.
+Next.js App Router (`website/`). Static export (`output: "export"`) deployed to GitHub Pages via `.github/workflows/deploy-website.yml`; custom domain via `public/CNAME`.
 
 ## Routes
 
@@ -18,7 +18,6 @@ Next.js App Router (`website/`). Deployed to Vercel.
 ## Layout (`src/app/layout.tsx`)
 
 Root layout wraps all pages with:
-- Vercel `<Analytics />` and `<SpeedInsights />`
 - Global CSS (`globals.css`)
 - Version string from `@/lib/version.ts`
 
@@ -57,7 +56,6 @@ Root layout wraps all pages with:
 ## Key Dependencies
 
 - `framer-motion` — scroll animations
-- `@vercel/analytics` + `@vercel/speed-insights` — Vercel observability
 - `clsx` — conditional class names
 
 ## Key Files
