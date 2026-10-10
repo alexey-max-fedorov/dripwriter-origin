@@ -40,7 +40,7 @@ const sections = [
   },
   {
     heading: "Website Hosting",
-    body: "The marketing website at dripwriter.org is a static site hosted on GitHub Pages. It runs no analytics, sets no cookies, and collects no personal information. As with any web host, GitHub may process standard request data (such as IP addresses) under its own privacy policy; that processing is outside the control of Dripwriter Origin. This applies only to the website — the installed browser extension still makes zero network requests."
+    body: "The marketing website at dripwriter.org is a static site hosted on GitHub Pages behind Cloudflare. It sets no cookies and collects no personal information. It uses Cloudflare Web Analytics, a cookieless, privacy-first service that reports aggregate page views and basic performance metrics without fingerprinting visitors or tracking them across sites. As with any web host, GitHub may process standard request data (such as IP addresses) under its own privacy policy; that processing is outside the control of Dripwriter Origin. This applies only to the website — the installed browser extension still makes zero network requests."
   },
   {
     heading: "Browser Web Store Analytics",
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
           <p className="text-[#a0a0a0] text-sm leading-relaxed mb-12 italic">
             This policy describes the data practices of the Dripwriter Origin browser
             extension. The marketing website at dripwriter.org is a static site with no
-            analytics or cookies — see "Website Hosting" below.
+            cookies and only cookieless aggregate analytics — see "Website Hosting" below.
           </p>
 
           <div className="border-t border-[#1a1a1a]">
